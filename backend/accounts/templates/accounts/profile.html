@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - Lottery{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Profile</h3>
+            </div>
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Account Information</h5>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Full Name:</strong></td>
+                                <td>{{ user.last_name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Email:</strong></td>
+                                <td>{{ user.email }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Email Verified:</strong></td>
+                                <td>
+                                    {% if user.account.email_verified %}
+                                    <span class="badge bg-success">Yes</span>
+                                    {% else %}
+                                    <span class="badge bg-warning">No</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Date Joined:</strong></td>
+                                <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5>Update Bank Account</h5>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="bankaccount" class="form-label">Bank Account Number</label>
+                                <input type="text" class="form-control" id="bankaccount" name="bankaccount"
+                                    value="{{ user.account.bankaccount }}" maxlength="20"
+                                    placeholder="Enter bank account number">
+                                <div class="form-text">Maximum 20 characters</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </form>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="text-center">
+                    <a href="{% url 'accounts:signout' %}" class="btn btn-outline-danger">Sign Out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

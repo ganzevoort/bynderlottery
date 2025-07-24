@@ -1,0 +1,18 @@
+[tool.black]
+line-length = 79
+extend-exclude = "migrations"
+force-exclude = "(^/service/settings/defaults.py|^/manage.py)"
+
+[tool.flake8]
+exclude = [
+    'migrations',
+    'etc',
+    'var',
+    'media',
+    'static',
+]
+per-file-ignores = [
+    './service/settings/__init__.py:F403,F405',
+    './service/settings/environment.py:F822',
+    './service/settings/defaults.py:E501',
+]

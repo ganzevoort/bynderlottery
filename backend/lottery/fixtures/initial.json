@@ -1,0 +1,96 @@
+[
+  {
+    "model": "lottery.drawtype",
+    "pk": 1,
+    "fields": {
+      "order": 1,
+      "name": "Daily",
+      "is_active": true,
+      "schedule": {}
+    }
+  },
+  {
+    "model": "lottery.drawtype",
+    "pk": 2,
+    "fields": {
+      "order": 2,
+      "name": "Friday Special",
+      "is_active": true,
+      "schedule": {
+        "weekday": 4
+      }
+    }
+  },
+  {
+    "model": "lottery.drawtype",
+    "pk": 3,
+    "fields": {
+      "order": 3,
+      "name": "New Year's Eve",
+      "schedule": {
+        "month": 12,
+        "day": 31
+      }
+    }
+  },
+  {
+    "model": "lottery.prize",
+    "pk": 1,
+    "fields": {
+      "name": "Giga Jackpot",
+      "amount": 10000000,
+      "number": 1,
+      "drawtype": 3
+    }
+  },
+  {
+    "model": "lottery.prize",
+    "pk": 2,
+    "fields": {
+      "name": "Early Retirement",
+      "amount": 1000000,
+      "number": 5,
+      "drawtype": 3
+    }
+  },
+  {
+    "model": "lottery.prize",
+    "pk": 3,
+    "fields": {
+      "name": "New Car",
+      "amount": 40000,
+      "number": 20,
+      "drawtype": 3
+    }
+  },
+  {
+    "model": "lottery.prize",
+    "pk": 4,
+    "fields": {
+      "name": "Mega Jackpot",
+      "amount": 1000000,
+      "number": 1,
+      "drawtype": 2
+    }
+  },
+  {
+    "model": "lottery.prize",
+    "pk": 5,
+    "fields": {
+      "name": "Jackpot",
+      "amount": 100000,
+      "number": 1,
+      "drawtype": 1
+    }
+  },
+  {
+    "model": "lottery.prize",
+    "pk": 6,
+    "fields": {
+      "name": "Troostprijs",
+      "amount": 10,
+      "number": 5,
+      "drawtype": 1
+    }
+  }
+]

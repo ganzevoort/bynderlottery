@@ -7,6 +7,8 @@ from .environment import *
 INSTALLED_APPS += [
     "service",
     "accounts",
+    "lottery",
+    "django.contrib.humanize",
 ]
 
 LOGIN_URL = "/accounts/signin/"

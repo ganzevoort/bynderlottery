@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Open Draws - Lottery{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Open Lottery Draws</h1>
+                <a href="{% url 'lottery:closed_draws' %}" class="btn btn-outline-secondary">
+                    View Closed Draws
+                </a>
+            </div>
+
+            {% if draws %}
+            <div class="row">
+                {% for draw in draws %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">{{ draw.drawtype.name }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                <strong>Date:</strong> {{ draw.date|date:"F j, Y" }}<br>
+                                <strong>Status:</strong>
+                                <span class="badge bg-success">Open</span>
+                            </p>
+
+                            {% if draw.drawtype.prizes.all %}
+                            <h6>Prizes:</h6>
+                            <ul class="list-unstyled">
+                                {% for prize in draw.drawtype.prizes.all %}
+                                <li>
+                                    <small class="text-muted">
+                                        {{ prize.number }}x {{ prize.name }}:
+                                        € {{ prize.amount|floatformat:0|intcomma }}
+                                    </small>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-muted">
+                                {% if draw.ballots.count > 0 %}
+                                {{ draw.ballots.count }} ballot{{ draw.ballots.count|pluralize }} entered
+                                {% else %}
+                                No ballots entered yet
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <h4 class="alert-heading">No Open Draws</h4>
+                <p>There are currently no open lottery draws. Check back later for new draws!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

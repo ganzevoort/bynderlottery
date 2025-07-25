@@ -12,8 +12,12 @@
 - email html templates
 
 # lottery
-- drawtype
-- draw
-- ballot
+- send email to winners
+- payout for winners
+- payment for ballot purchases
+- monitoring metrics: #ballots, #winners etc
+- remove ballots without prize for closed draws older than X.
 
-# payout
+# nextjs frontend
+- django-rest-framework
+- frontend...

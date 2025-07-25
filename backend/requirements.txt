@@ -1,11 +1,16 @@
+# Core
 Django
 gunicorn
 psycopg2
 requests
 whitenoise
 
+# Development
 ipdb
 pipdeptree
 flake8
 flake8-pyproject
 black
+
+# Lottery
+django-ordered-model

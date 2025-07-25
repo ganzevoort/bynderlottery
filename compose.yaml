@@ -1,10 +1,47 @@
 services:
+
   backend:
     build:
       context: backend
-    user: ${UID}:${GID}
+    user: ${UID}:${GID}  # to match bound volumes
     ports:
       - '127.0.0.1:8000:8000'
     volumes:
       - ./backend:/code
+      - ./pgdumps:/pgdumps
+    depends_on:
+      - postgres
+      - redis
     env_file: .env
+
+  celery:
+    build:
+      context: backend
+    env_file: .env
+    depends_on:
+      - backend
+      - postgres
+      - redis
+    command: celery --app service.background worker --loglevel INFO --events
+
+  beat:
+    build:
+      context: backend
+    env_file: .env
+    depends_on:
+      - backend
+      - postgres
+      - redis
+    command: celery --app service.background beat --loglevel INFO
+
+  postgres:
+    # make sure it's not newer than what pg_restore in the
+    # backend container can read.
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+
+  redis:
+    image: redis

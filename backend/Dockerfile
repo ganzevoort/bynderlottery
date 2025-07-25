@@ -1,5 +1,8 @@
 FROM python
 
+RUN apt update -qq && \
+    apt install -qqy --no-install-recommends postgresql-client
+
 RUN addgroup --gid 9999 code && \
     adduser --uid 9999 --gid 9999 --gecos '' --disabled-password code
 RUN chmod 755 /home/code

@@ -1,0 +1,21 @@
+{% load humanize %}
+Congratulations {{user.get_full_name}}!
+
+You have won {% if prizes|length == 1 %}a prize{% else %}prizes{% endif %} in the {{draw.drawtype.name}} lottery draw on {{draw.date|date:"F j, Y"}}!
+
+Prize Details:
+{% for prize in prizes %}
+- Prize Name: {{prize.name}}
+- Prize Amount: €{{prize.amount|floatformat:0|intcomma}}
+{% endfor %}
+{% if prizes|length > 1 %}
+
+Total Winnings: €{{total_amount|floatformat:0|intcomma}}
+{% endif %}
+
+Your ballot{{prizes|length|pluralize}} was selected as winning entr{{prizes|length|pluralize:"y,ies"}}. We will contact you shortly with instructions on how to claim your prize{{prizes|length|pluralize}}.
+
+Thank you for participating in our lottery!
+
+Best regards,
+The Lottery Team 

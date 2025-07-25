@@ -1,6 +1,5 @@
 from django.db import models
 from ordered_model.models import OrderedModel
-from django.utils import timezone
 
 from accounts.models import Account
 
@@ -69,20 +68,6 @@ class Draw(models.Model):
         if not self.drawtype_id:
             self.drawtype = DrawType.type_for_date(self.date)
         super().save(*args, **kwargs)
-
-    def close(self):
-        self.closed = timezone.now()
-        self.save()
-        # There's a limited number of prizes, keep ballots as a queryset to
-        # avoid fetching more than needed.
-        prizes = [
-            p for p in self.drawtype.prizes.all() for _ in range(p.number)
-        ]
-        ballots = self.ballots.all().order_by("?")
-        for prize, ballot in zip(prizes, ballots):
-            ballot.prize = prize
-            ballot.save()
-        # TODO: send email to all accounts that have won a prize in this draw.
 
     def __str__(self):
         formatted = f"{self.drawtype.name} - {self.date}"

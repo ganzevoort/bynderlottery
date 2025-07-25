@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest.mock import patch
 
 from django.test import TestCase, Client
 from django.urls import reverse
@@ -37,7 +38,8 @@ class AccountViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "accounts/signup.html")
 
-    def test_signup_view_post_success(self):
+    @patch("accounts.tasks.send_verification_email.delay")
+    def test_signup_view_post_success(self, mock_send_email):
         data = {
             "email": "new@example.com",
             "password1": "newpass123",
@@ -49,6 +51,7 @@ class AccountViewsTest(TestCase):
         self.assertTrue(User.objects.filter(email="new@example.com").exists())
         messages = list(get_messages(response.wsgi_request))
         self.assertIn("Account created successfully", str(messages[0]))
+        mock_send_email.assert_called_once()
 
     def test_signin_view_success(self):
         data = {"username": "active@example.com", "password": "testpass123"}
@@ -79,13 +82,15 @@ class AccountViewsTest(TestCase):
         messages = list(get_messages(response.wsgi_request))
         self.assertIn("Invalid verification link", str(messages[0]))
 
-    def test_forgot_password_view(self):
+    @patch("accounts.tasks.send_password_reset_email.delay")
+    def test_forgot_password_view(self, mock_send_email):
         response = self.client.post(
             reverse("accounts:forgot_password"), {"email": "test@example.com"}
         )
         self.assertRedirects(response, reverse("accounts:signin"))
         messages = list(get_messages(response.wsgi_request))
         self.assertIn("If an account with that email exists", str(messages[0]))
+        mock_send_email.assert_called_once_with("test@example.com")
 
     def test_reset_password_view_success(self):
         # Set up reset token
@@ -109,22 +114,28 @@ class AccountViewsTest(TestCase):
         self.active_account.refresh_from_db()
         self.assertEqual(self.active_account.password_reset_token, "")
         self.assertIsNone(self.active_account.password_reset_expires)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertIn(
+            "Your password has been reset successfully", str(messages[0])
+        )
 
     def test_reset_password_view_expired_token(self):
-        self.active_account.password_reset_token = "resettoken123"
+        # Set up expired reset token
+        self.active_account.password_reset_token = "expiredtoken123"
         self.active_account.password_reset_expires = (
             timezone.now() - timedelta(hours=1)
         )
         self.active_account.save()
-
         response = self.client.get(
             reverse(
-                "accounts:reset_password", kwargs={"token": "resettoken123"}
+                "accounts:reset_password", kwargs={"token": "expiredtoken123"}
             )
         )
         self.assertRedirects(response, reverse("accounts:forgot_password"))
         messages = list(get_messages(response.wsgi_request))
-        self.assertIn("Password reset link has expired", str(messages[0]))
+        self.assertIn(
+            "Invalid or expired password reset link", str(messages[0])
+        )
 
     def test_profile_view_authenticated(self):
         self.client.force_login(self.active_user)
@@ -134,20 +145,18 @@ class AccountViewsTest(TestCase):
 
     def test_profile_view_update_bankaccount(self):
         self.client.force_login(self.active_user)
-        response = self.client.post(
-            reverse("accounts:profile"), {"bankaccount": "123456789"}
-        )
-        self.assertEqual(response.status_code, 200)
+        data = {"bankaccount": "1234567890"}
+        response = self.client.post(reverse("accounts:profile"), data)
+        self.assertRedirects(response, reverse("accounts:profile"))
         self.active_account.refresh_from_db()
-        self.assertEqual(self.active_account.bankaccount, "123456789")
-        messages = list(get_messages(response.wsgi_request))
-        self.assertIn("Profile updated successfully", str(messages[0]))
+        self.assertEqual(self.active_account.bankaccount, "1234567890")
 
     def test_signout_view(self):
         self.client.force_login(self.active_user)
         response = self.client.get(reverse("accounts:signout"))
+        self.assertRedirects(response, reverse("accounts:signin"))
         self.assertEqual(response.wsgi_request.user.is_authenticated, False)
         messages = list(get_messages(response.wsgi_request))
         self.assertIn(
-            "You have been successfully logged out", str(messages[0])
+            "You have been signed out successfully", str(messages[0])
         )

@@ -14,16 +14,11 @@ Views for the accounts app.
 import logging
 
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.conf import settings
-from django.utils.crypto import get_random_string
 from django.utils import timezone
-from datetime import timedelta
-from django.urls import reverse
-
-from service.email import send_templated_email
+from django.conf import settings
 
 from .forms import (
     UserSignUpForm,
@@ -32,72 +27,13 @@ from .forms import (
     SetNewPasswordForm,
 )
 from .models import Account
-from django.contrib.auth.models import User
+from .tasks import send_verification_email, send_password_reset_email
 
 logger = logging.getLogger(__name__)
 
 
-def send_verification_email(email):
-    """Send verification email to user with given email."""
-    try:
-        user = User.objects.get(email=email)
-
-        # Generate email verification token
-        token = get_random_string(64)
-        user.account.email_verification_token = token
-        user.account.save()
-
-        # Send verification email
-        verification_url = reverse(
-            "accounts:verify_email", kwargs={"token": token}
-        )
-
-        send_templated_email(
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=user.email,
-            subject="Verify your email address",
-            template_name="accounts/email/verify_email",
-            context_dict={"verification_url": verification_url, "user": user},
-        )
-    except User.DoesNotExist:
-        # User doesn't exist, but we don't want to reveal this
-        pass
-    except Exception as e:
-        # Log the error but don't expose it to the user
-        logger.error(f"Failed to send verification email to {email}: {e}")
-
-
-def send_password_reset_email(email):
-    """Send password reset email to user with given email."""
-    try:
-        user = User.objects.get(email=email)
-        account = user.account
-
-        # Generate password reset token
-        token = get_random_string(64)
-        account.password_reset_token = token
-        account.password_reset_expires = timezone.now() + timedelta(hours=24)
-        account.save()
-
-        # Send password reset email
-        reset_url = reverse("accounts:reset_password", kwargs={"token": token})
-
-        send_templated_email(
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=user.email,
-            subject="Reset your password",
-            template_name="accounts/email/password_reset",
-            context_dict={"reset_url": reset_url, "user": user},
-        )
-    except User.DoesNotExist:
-        # User doesn't exist, but we don't want to reveal this
-        pass
-    except Exception as e:
-        # Log the error but don't expose it to the user
-        logger.error(f"Failed to send password reset email to {email}: {e}")
-
-
 def signup_view(request):
+    """Handle user signup."""
     if request.method == "POST":
         form = UserSignUpForm(request.POST)
         if form.is_valid():
@@ -106,7 +42,7 @@ def signup_view(request):
             user.save()
 
             # Send verification email
-            send_verification_email(user.email)
+            send_verification_email.delay(user.email)
             messages.success(
                 request,
                 "Account created successfully! Please check your email to "
@@ -120,26 +56,25 @@ def signup_view(request):
 
 
 def signin_view(request):
+    """Handle user signin."""
     if request.user.is_authenticated:
         return redirect("accounts:profile")
 
     if request.method == "POST":
         form = UserSignInForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get("username")
-            password = form.cleaned_data.get("password")
-            user = authenticate(username=username, password=password)
-            if user:
-                login(request, user)
-                messages.success(
-                    request,
-                    f"Welcome back, {user.last_name or user.email}!",
-                )
-                return redirect(settings.LOGIN_REDIRECT_URL)
+            user = form.get_user()
+            login(request, user)
+            messages.success(
+                request,
+                f"Welcome back, {user.last_name or user.email}!",
+            )
+            return redirect(settings.LOGIN_REDIRECT_URL)
         messages.error(
             request,
             "Invalid email or password. Maybe you need to verify your email?",
         )
+
     else:
         form = UserSignInForm()
 
@@ -148,12 +83,14 @@ def signin_view(request):
 
 @login_required
 def signout_view(request):
+    """Handle user signout."""
     logout(request)
-    messages.success(request, "You have been successfully logged out.")
+    messages.success(request, "You have been signed out successfully.")
     return redirect(settings.LOGOUT_REDIRECT_URL)
 
 
 def verify_email_view(request, token):
+    """Handle email verification."""
     try:
         if not token:
             raise Account.DoesNotExist
@@ -167,10 +104,10 @@ def verify_email_view(request, token):
             request,
             "Email verified successfully! You can now sign in.",
         )
-        return redirect("accounts:signin")
     except Account.DoesNotExist:
         messages.error(request, "Invalid verification link.")
-        return redirect("accounts:signin")
+
+    return redirect("accounts:signin")
 
 
 @login_required
@@ -183,29 +120,23 @@ def profile_view(request):
             messages.success(request, "Profile updated successfully!")
         else:
             messages.error(request, "Bank account number is too long.")
-
+        return redirect("accounts:profile")
     return render(request, "accounts/profile.html")
 
 
 def resend_verification_view(request):
+    """Handle resend verification email request."""
     if request.method == "POST":
         email = request.POST.get("email")
-        try:
-            user = Account.objects.get(user__email=email).user
-            if not user.is_active:
-                # Send verification email
-                send_verification_email(email)
-                messages.success(
-                    request,
-                    "Verification email sent successfully!",
-                )
-            else:
-                messages.info(request, "This account is already verified.")
-        except Account.DoesNotExist:
-            messages.error(
+        if email:
+            send_verification_email.delay(email)
+            messages.success(
                 request,
-                "No account found with this email address.",
+                "If an account exists with that email, a verification link "
+                "has been sent.",
             )
+        else:
+            messages.error(request, "Please provide an email address.")
 
     return render(request, "accounts/resend_verification.html")
 
@@ -216,7 +147,7 @@ def forgot_password_view(request):
         form = ForgotPasswordForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data["email"]
-            send_password_reset_email(email)
+            send_password_reset_email.delay(email)
             messages.success(
                 request,
                 "If an account with that email exists, a password reset link "
@@ -230,20 +161,12 @@ def forgot_password_view(request):
 
 
 def reset_password_view(request, token):
-    """Handle password reset with token."""
+    """Handle password reset."""
     try:
-        account = Account.objects.get(password_reset_token=token)
-
-        # Check if token is expired
-        if (
-            account.password_reset_expires
-            and account.password_reset_expires < timezone.now()
-        ):
-            messages.error(
-                request,
-                "Password reset link has expired. Please request a new one.",
-            )
-            return redirect("accounts:forgot_password")
+        account = Account.objects.get(
+            password_reset_token=token,
+            password_reset_expires__gt=timezone.now(),
+        )
 
         if request.method == "POST":
             form = SetNewPasswordForm(account.user, request.POST)
@@ -265,5 +188,5 @@ def reset_password_view(request, token):
         return render(request, "accounts/reset_password.html", {"form": form})
 
     except Account.DoesNotExist:
-        messages.error(request, "Invalid password reset link.")
+        messages.error(request, "Invalid or expired password reset link.")
         return redirect("accounts:forgot_password")

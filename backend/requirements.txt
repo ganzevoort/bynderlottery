@@ -1,9 +1,16 @@
 # Core
 Django
 gunicorn
-psycopg2
+psycopg
 requests
 whitenoise
+
+# Lottery
+django-ordered-model
+
+# Tasks
+celery
+redis
 
 # Development
 ipdb
@@ -11,6 +18,3 @@ pipdeptree
 flake8
 flake8-pyproject
 black
-
-# Lottery
-django-ordered-model

@@ -6,6 +6,7 @@ from django.urls import reverse
 
 from .models import DrawType, Prize, Draw, Ballot
 from .forms import BallotPurchaseForm
+from .tasks import close_lottery_draw
 
 
 class DrawTypeTests(TestCase):
@@ -125,7 +126,8 @@ class DrawTests(TestCase):
         self.assertEqual(str(self.draw), "Test Draw - 2025-07-28")
 
         # Test closed draw
-        self.draw.close()
+        close_lottery_draw(self.draw.id)
+        self.draw.refresh_from_db()
         self.assertIn("(closed)", str(self.draw))
 
     def test_draw_closing(self):
@@ -142,7 +144,7 @@ class DrawTests(TestCase):
         ballot = Ballot.objects.create(draw=self.draw, account=account)
 
         # Close the draw
-        self.draw.close()
+        close_lottery_draw(self.draw.id)
 
         # Refresh from database
         ballot.refresh_from_db()
@@ -173,7 +175,7 @@ class DrawTests(TestCase):
             ballots.append(ballot)
 
         # Close the draw
-        self.draw.close()
+        close_lottery_draw(self.draw.id)
 
         # Check that prizes were assigned
         winning_ballots = Ballot.objects.filter(prize__isnull=False)
@@ -185,7 +187,8 @@ class DrawTests(TestCase):
 
     def test_draw_closing_no_ballots(self):
         """Test closing a draw with no ballots"""
-        self.draw.close()
+        close_lottery_draw(self.draw.id)
+        self.draw.refresh_from_db()
         self.assertIsNotNone(self.draw.closed)
 
         # No ballots should have prizes
@@ -344,7 +347,7 @@ class LotteryViewsTests(TestCase):
         self.closed_draw = Draw.objects.create(
             date=date(2025, 7, 21), drawtype=self.drawtype
         )
-        self.closed_draw.close()
+        close_lottery_draw(self.closed_draw.id)
 
     def test_open_draws_list_view(self):
         """Test open draws list view"""
@@ -600,7 +603,7 @@ class LotteryIntegrationTests(TestCase):
         self.assertEqual(assigned_ballots.count(), 3)
 
         # 3. Close the draw
-        self.draw.close()
+        close_lottery_draw(self.draw.id)
 
         # 4. Check for winners
         winning_ballots = Ballot.objects.filter(
@@ -650,7 +653,7 @@ class LotteryIntegrationTests(TestCase):
                 )
 
         # Close the draw
-        self.draw.close()
+        close_lottery_draw(self.draw.id)
 
         # Check winners
         winning_ballots = Ballot.objects.filter(prize__isnull=False)
@@ -708,7 +711,7 @@ class LotteryEdgeCaseTests(TestCase):
         )
 
         # Close the draw
-        self.draw.close()
+        close_lottery_draw(self.draw.id)
 
         # Only 2 ballots should have prizes
         winning_ballots = Ballot.objects.filter(prize__isnull=False)
@@ -729,7 +732,7 @@ class LotteryEdgeCaseTests(TestCase):
             )
 
         # Close the draw
-        self.draw.close()
+        close_lottery_draw(self.draw.id)
 
         # Only 1 ballot should have a prize
         winning_ballots = Ballot.objects.filter(prize__isnull=False)

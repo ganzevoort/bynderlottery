@@ -1,0 +1,25 @@
+{% extends "email/base.html" %}
+
+{% block content %}
+<div class="greeting">Hello {{user.get_full_name}},</div>
+
+<div class="message">
+    Welcome to our lottery platform! To complete your registration, please verify your email address by clicking the
+    button below.
+</div>
+
+<div style="text-align: center;">
+    <a href="{{settings.BASE_URL}}{{verification_url}}" class="button">Verify Email Address</a>
+</div>
+
+<div class="message">
+    If the button doesn't work, you can copy and paste this link into your browser:
+    <br><br>
+    <a href="{{settings.BASE_URL}}{{verification_url}}" class="link">{{settings.BASE_URL}}{{verification_url}}</a>
+</div>
+
+<div class="warning">
+    <strong>Security Notice:</strong> This link will expire in 24 hours.<br />
+    If you didn't request this email verification, please ignore this email and your email will remain unchanged.
+</div>
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends "email/base.html" %}
+
+{% block title %}Congratulations! You've Won!{% endblock %}
+
+{% block header_title %}🎉 Congratulations! 🎉{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .header {
+        border-bottom: 2px solid #ffc107;
+    }
+
+    .title {
+        font-size: 28px;
+        color: #ffc107;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .greeting {
+        color: #28a745;
+        font-weight: bold;
+        font-size: 20px;
+    }
+
+    .prize-section {
+        background-color: #fff3cd;
+        border: 2px solid #ffc107;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 25px 0;
+    }
+
+    .prize-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #856404;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    .prize-item {
+        background-color: #ffffff;
+        border: 1px solid #ffeaa7;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 10px 0;
+    }
+
+    .prize-name {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .prize-amount {
+        font-size: 18px;
+        color: #28a745;
+        font-weight: bold;
+    }
+
+    .total-winnings {
+        background-color: #d4edda;
+        border: 2px solid #28a745;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 15px 0;
+        text-align: center;
+    }
+
+    .total-label {
+        font-size: 16px;
+        color: #155724;
+        margin-bottom: 5px;
+    }
+
+    .total-amount {
+        font-size: 24px;
+        color: #28a745;
+        font-weight: bold;
+    }
+
+    .next-steps {
+        background-color: #e7f3ff;
+        border: 1px solid #b3d9ff;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 20px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="greeting">Hello {{user.get_full_name}}!</div>
+
+<div class="message">
+    You have won {% if prizes|length == 1 %}a prize{% else %}prizes{% endif %} in the
+    <strong>{{draw.drawtype.name}}</strong> lottery draw on <strong>{{draw.date|date:"F j, Y"}}</strong>!
+</div>
+
+<div class="prize-section">
+    <div class="prize-title">🏆 Prize Details</div>
+
+    {% for prize in prizes %}
+    <div class="prize-item">
+        <div class="prize-name">{{prize.name}}</div>
+        <div class="prize-amount">€{{prize.amount|floatformat:0|intcomma}}</div>
+    </div>
+    {% endfor %}
+
+    {% if prizes|length > 1 %}
+    <div class="total-winnings">
+        <div class="total-label">Total Winnings:</div>
+        <div class="total-amount">€{{total_amount|floatformat:0|intcomma}}</div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="next-steps">
+    <strong>What's Next?</strong><br>
+    Your ballot{{prizes|length|pluralize}} was selected as winning entr{{prizes|length|pluralize:"y,ies"}}. We will
+    contact you shortly with instructions on how to claim your prize{{prizes|length|pluralize}}.
+</div>
+
+<div class="message">
+    Thank you for participating in our lottery! We appreciate your support and hope you enjoy your winnings.
+</div>
+{% endblock %}

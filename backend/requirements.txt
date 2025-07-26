@@ -5,6 +5,9 @@ psycopg
 requests
 whitenoise
 
+# API
+djangorestframework
+
 # Lottery
 django-ordered-model
 

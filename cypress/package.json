@@ -1,0 +1,19 @@
+{
+    "name": "lottery-cypress-tests",
+    "version": "1.0.0",
+    "description": "Cypress integration tests for Lottery System",
+    "scripts": {
+        "cypress:open": "cypress open",
+        "cypress:run": "cypress run",
+        "test:e2e": "cypress run --spec 'cypress/e2e/**/*.cy.ts'",
+        "test:user-journey": "cypress run --spec 'cypress/e2e/user-journey.cy.ts'",
+        "test:api": "cypress run --spec 'cypress/e2e/api-tests.cy.ts'"
+    },
+    "devDependencies": {
+        "cypress": "^13.6.1",
+        "@types/cypress": "^1.1.3"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}

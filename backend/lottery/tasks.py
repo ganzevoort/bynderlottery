@@ -89,12 +89,12 @@ def close_todays_draw():
         logger.exception("Failed to close today's draw")
 
 
-# Schedule the task to run daily at 04:00
+# Schedule the task to run daily at 20:00
 celery_app.conf.beat_schedule.update(
     {
         "close-todays-draw": {
             "task": "lottery.tasks.close_todays_draw",
-            "schedule": crontab(hour=4, minute=0),
+            "schedule": crontab(hour=20, minute=0),
         },
     }
 )

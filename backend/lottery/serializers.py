@@ -170,25 +170,13 @@ class UserBallotsSerializer(serializers.Serializer):
         return BallotSerializer(ballots, many=True).data
 
     def get_assigned_ballots(self, obj):
-        """Get assigned ballots grouped by draw"""
+        """Get assigned ballots as a flat list"""
         assigned_ballots = (
             Ballot.objects.filter(account__user=obj, draw__isnull=False)
             .select_related("draw", "prize")
             .order_by("-draw__date", "-id")
         )
-
-        # Group by draw
-        draws = {}
-        for ballot in assigned_ballots:
-            draw_id = ballot.draw.id
-            if draw_id not in draws:
-                draws[draw_id] = {
-                    "draw": DrawSerializer(ballot.draw).data,
-                    "ballots": [],
-                }
-            draws[draw_id]["ballots"].append(BallotSerializer(ballot).data)
-
-        return list(draws.values())
+        return BallotSerializer(assigned_ballots, many=True).data
 
     def get_total_ballots(self, obj):
         """Get total ballot count for user"""

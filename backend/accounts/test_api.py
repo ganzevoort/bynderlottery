@@ -188,7 +188,7 @@ class AccountsAPITestCase(TestCase):
         url = reverse(
             "accounts_api:verify_email", kwargs={"token": "test-token"}
         )
-        response = self.client.get(url, format="json")
+        response = self.client.post(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("message", response.data)
 
@@ -203,6 +203,6 @@ class AccountsAPITestCase(TestCase):
         url = reverse(
             "accounts_api:verify_email", kwargs={"token": "invalid-token"}
         )
-        response = self.client.get(url, format="json")
+        response = self.client.post(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("error", response.data)

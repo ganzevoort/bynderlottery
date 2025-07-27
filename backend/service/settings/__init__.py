@@ -1,7 +1,20 @@
 import os
+from importlib import import_module
 
 from .defaults import *
 from .environment import *
+
+
+# Load layer settings
+try:
+    m = import_module(f"service.settings.{os.getenv('LAYER', 'dev')}")
+    globals().update(m.__dict__)
+except ModuleNotFoundError:
+    pass
+
+
+# Test-specific settings
+DEBUG = LAYER not in ["acceptance", "production"]
 
 
 INSTALLED_APPS += [
@@ -12,8 +25,8 @@ INSTALLED_APPS += [
     "rest_framework",
 ]
 
-LOGIN_URL = "/accounts/signin/"
-LOGIN_REDIRECT_URL = "/"
+LOGIN_URL = "accounts:signin"
+LOGIN_REDIRECT_URL = "index"
 LOGOUT_REDIRECT_URL = LOGIN_URL
 
 # Django REST Framework settings
@@ -50,7 +63,14 @@ if SITENAME:
     CSRF_TRUSTED_ORIGINS = [f"https://{SITENAME}"]
     BASE_URL = f"https://{SITENAME}"
 else:
+    ALLOWED_HOSTS = ALLOWED_HOSTS or ["localhost"]
+    CSRF_TRUSTED_ORIGINS = [
+        "http://localhost:8080",
+        "http://localhost:8081",
+        "http://web",
+    ]
     BASE_URL = "http://localhost:8000"
+
 
 DATABASES = {
     "default": {

@@ -1,18 +1,20 @@
 # general
-- monitoring
+- monitoring; metrics: #accounts, #unverified, #ballots, #winners etc
 
-# accounts
+# backend
+## accounts
 - captchas
 - 2fa
-- monitoring metrics: #accounts, #unverified etc
 - remove old unverified accounts?
+- test views, management commands only when LAYER=test
+- emails refer to /oldstyle/ urls
 
-# lottery
+## lottery
 - payout for winners
 - payment for ballot purchases
-- monitoring metrics: #ballots, #winners etc
 - remove ballots without prize for closed draws older than X.
 
-# nextjs frontend
-- django-rest-framework
-- frontend...
+# cicd pipeline
+- push to gitlab
+- setup pipeline to do tests
+- and to deploy to production (k8s)

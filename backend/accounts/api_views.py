@@ -94,7 +94,7 @@ class VerifyEmailView(APIView):
 
     permission_classes = [AllowAny]
 
-    def get(self, request, token):
+    def post(self, request, token):
         try:
             account = Account.objects.get(
                 email_verification_token=token, email_verified=False
@@ -276,12 +276,10 @@ class ProfileView(APIView):
     def put(self, request):
         """Update current user's profile"""
         account = get_object_or_404(Account, user=request.user)
-        serializer = ProfileUpdateSerializer(
-            account, data=request.data, partial=True
-        )
+        serializer = ProfileUpdateSerializer(data=request.data)
 
         if serializer.is_valid():
-            serializer.save()
+            serializer.update(account, serializer.validated_data)
             # Return updated profile
             account_serializer = AccountSerializer(account)
             return Response(account_serializer.data)

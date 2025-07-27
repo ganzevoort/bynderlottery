@@ -1,14 +1,38 @@
 services:
 
+  web:
+    image: nginx
+    ports:
+      - '127.0.0.1:8080:80'
+    volumes:
+      - ./nginx/templates:/etc/nginx/templates:ro
+    depends_on:
+      - backend
+      - frontend
+
+  frontend:
+    build:
+      context: frontend
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./frontend/yarn.lock:/code/yarn.lock
+      - ./frontend/package.json:/code/package.json
+      - ./frontend/tsconfig.json:/code/tsconfig.json
+      - ./frontend/next.config.ts:/code/next.config.ts
+      - ./frontend/next-env.d.ts:/code/next-env.d.ts
+      - ./frontend/postcss.config.mjs:/code/postcss.config.mjs
+      - ./frontend/public:/code/public
+      - ./frontend/README.md:/code/README.md
+      - ./frontend/src:/code/src
+
   backend:
     build:
       context: backend
-    user: ${UID}:${GID}  # to match bound volumes
-    ports:
-      - '127.0.0.1:8000:8000'
+    user: ${UID}:${GID} # to match bound volumes
     volumes:
       - ./backend:/code
-      - ./pgdumps:/pgdumps
+      - ./pgdumps:/pgdumps:ro
     depends_on:
       - postgres
       - redis

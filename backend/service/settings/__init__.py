@@ -47,7 +47,7 @@ REST_FRAMEWORK = {
 
 
 # Celery settings for background tasks
-REDIS_URL = "redis://redis:6379/0"
+REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_ACCEPT_CONTENT = ["json"]

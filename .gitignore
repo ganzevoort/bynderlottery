@@ -2,3 +2,11 @@
 .DS_Store
 *.log
 .env
+
+# Kubernetes secrets and configs
+.env-k8s
+config-k8g67.yml
+k8s/secrets.yaml
+
+# Registry authentication
+registry.htpasswd

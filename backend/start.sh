@@ -18,6 +18,6 @@ case "$LAYER" in
     exec python manage.py runserver 0.0.0.0:8000
     ;;
   * )
-    exec gunicorn --bind=0.0.0.0:8000 mysite.wsgi:application
+    exec gunicorn --bind=0.0.0.0:8000 service.wsgi:application
     ;;
 esac

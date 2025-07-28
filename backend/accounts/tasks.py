@@ -33,9 +33,7 @@ def send_verification_email(email):
         user.account.save()
 
         # Send verification email
-        verification_url = reverse(
-            "accounts:verify_email", kwargs={"token": token}
-        )
+        verification_url = f"/auth/verify-email/{token}/"
         send_templated_email(
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=user.email,
@@ -64,7 +62,7 @@ def send_password_reset_email(email):
         account.save()
 
         # Send password reset email
-        reset_url = reverse("accounts:reset_password", kwargs={"token": token})
+        reset_url = f"/auth/reset-password/{token}/"
         send_templated_email(
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=user.email,

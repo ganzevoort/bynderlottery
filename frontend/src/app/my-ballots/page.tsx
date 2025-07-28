@@ -185,7 +185,7 @@ export default function MyBallotsPage() {
                                             validate: (value) => validateCardNumber(value) || 'Invalid card number',
                                         })}
                                         type="text"
-                                        maxLength="19"
+                                        maxLength={19}
                                         className="input-field"
                                         placeholder="1234 5678 9012 3456"
                                     />
@@ -241,7 +241,7 @@ export default function MyBallotsPage() {
                                                 validate: (value) => validateCVV(value) || 'Invalid CVV',
                                             })}
                                             type="text"
-                                            maxLength="4"
+                                            maxLength={4}
                                             className="input-field"
                                             placeholder="123"
                                         />
@@ -298,7 +298,7 @@ export default function MyBallotsPage() {
                                 <div className="card card-hover p-4">
                                     <div className="mb-4">
                                         <h3 className="text-sm font-medium text-yellow-800">
-                                            {ballots.unassigned_ballots.length} Unassigned Ballot{ballots.unassigned_ballots.length !== 1 ? 's' : ''}
+                                            {ballots?.unassigned_ballots.length || 0} Unassigned Ballot{(ballots?.unassigned_ballots.length || 0) !== 1 ? 's' : ''}
                                         </h3>
                                         <p className="text-sm text-yellow-700 mt-1">
                                             Assign your ballots to draws to participate in the lottery.

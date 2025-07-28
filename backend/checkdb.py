@@ -6,13 +6,17 @@ from service import settings
 
 
 def find_pgdump_file(dumpdir="/pgdumps"):
-    dumpfiles = [
-        os.path.join(dumpdir, f)
-        for f in os.listdir(dumpdir)
-        if f.endswith(".dump")
-    ]
-    if dumpfiles:
-        return max(dumpfiles, key=lambda f: os.stat(f).st_mtime)
+    try:
+        dumpfiles = [
+            os.path.join(dumpdir, f)
+            for f in os.listdir(dumpdir)
+            if f.endswith(".dump")
+        ]
+        if dumpfiles:
+            return max(dumpfiles, key=lambda f: os.stat(f).st_mtime)
+    except FileNotFoundError:
+        print(f"Dump directory {dumpdir} not found, skipping dump restoration")
+        return None
 
 
 class DB:

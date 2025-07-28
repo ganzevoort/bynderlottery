@@ -1,0 +1,59 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lottery-ingress
+  namespace: lottery
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: "8m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts:
+    - bynderlottery.online
+    secretName: lottery-tls
+  rules:
+  - host: bynderlottery.online
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: lottery-backend
+            port:
+              number: 8000
+      - path: /admin
+        pathType: Prefix
+        backend:
+          service:
+            name: lottery-backend
+            port:
+              number: 8000
+      - path: /static
+        pathType: Prefix
+        backend:
+          service:
+            name: lottery-backend
+            port:
+              number: 8000
+      - path: /_next
+        pathType: Prefix
+        backend:
+          service:
+            name: lottery-frontend
+            port:
+              number: 3000
+
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: lottery-frontend
+            port:
+              number: 3000 

@@ -5,5 +5,5 @@ WORKDIR /code
 COPY --link yarn.lock package.json ./
 RUN yarn install
 COPY --link ./ ./
-COPY --link ./ ./
-CMD ["yarn", "dev"]
+RUN yarn build
+CMD ["yarn", "start"]

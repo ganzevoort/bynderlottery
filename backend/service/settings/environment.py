@@ -19,6 +19,8 @@ __all__ = [
     "EMAIL_HOST_PASSWORD",
     "DEFAULT_FROM_EMAIL",
     "TIME_ZONE",
+    "REDIS_HOST",
+    "REDIS_PORT",
 ]
 
 globals().update({envvar: os.getenv(envvar) for envvar in __all__})

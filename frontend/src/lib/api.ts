@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 // Use relative path since nginx handles the routing
 const API_BASE_URL = '/api';
@@ -23,7 +23,7 @@ const api = axios.create({
     },
 });
 
-api.interceptors.request.use((config: AxiosRequestConfig) => {
+api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     // Add CSRF token for non-GET requests
     if (config.method && config.method.toLowerCase() !== 'get') {
         const csrfToken = getCsrfToken();

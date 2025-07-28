@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lottery-backend
+  namespace: lottery
+  labels:
+    app: lottery-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lottery-backend
+  template:
+    metadata:
+      labels:
+        app: lottery-backend
+    spec:
+      containers:
+      - name: lottery-backend
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        envFrom:
+        - configMapRef:
+            name: lottery-config
+        - secretRef:
+            name: lottery-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lottery-frontend
+  namespace: lottery
+  labels:
+    app: lottery-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lottery-frontend
+  template:
+    metadata:
+      labels:
+        app: lottery-frontend
+    spec:
+      containers:
+      - name: lottery-frontend
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        envFrom:
+        - configMapRef:
+            name: lottery-config
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5 

@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "lottery.fullname" . }}-backend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "lottery.labels" . | nindent 4 }}
+    component: backend
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: 8000
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "lottery.selectorLabels" . | nindent 4 }}
+    component: backend
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "lottery.fullname" . }}-frontend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "lottery.labels" . | nindent 4 }}
+    component: frontend
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: 3000
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "lottery.selectorLabels" . | nindent 4 }}
+    component: frontend
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "lottery.fullname" . }}-celery-worker
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "lottery.labels" . | nindent 4 }}
+    component: celery-worker
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: 5555
+      targetPort: 5555
+      protocol: TCP
+      name: flower
+  selector:
+    {{- include "lottery.selectorLabels" . | nindent 4 }}
+    component: celery-worker
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "lottery.fullname" . }}-celery-beat
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "lottery.labels" . | nindent 4 }}
+    component: celery-beat
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: 5556
+      targetPort: 5556
+      protocol: TCP
+      name: beat
+  selector:
+    {{- include "lottery.selectorLabels" . | nindent 4 }}
+    component: celery-beat 

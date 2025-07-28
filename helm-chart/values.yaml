@@ -1,0 +1,124 @@
+# Default values for lottery chart
+replicaCount:
+  backend: 2
+  frontend: 2
+  celeryWorker: 2
+  celeryBeat: 1
+
+image:
+  repository: registry.bynderlottery.online
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: bynderlottery.online
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: lottery-tls
+      hosts:
+        - bynderlottery.online
+
+resources:
+  backend:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  frontend:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  celeryWorker:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  celeryBeat:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Environment configuration
+config:
+  # Django settings
+  LAYER: "production"
+  TIME_ZONE: "Europe/Amsterdam"
+  DEFAULT_FROM_EMAIL: "noreply@bynderlottery.online"
+  EMAIL_BACKEND: "django.core.mail.backends.smtp.EmailBackend"
+  DATABASE_ENGINE: "django.db.backends.postgresql"
+  DATABASE_HOST: "postgres"
+  DATABASE_NAME: "myproject"
+  DATABASE_USER: "janedoe"
+  EMAIL_HOST: "mail.candidmind.nl"
+  EMAIL_PORT: "587"
+  EMAIL_USE_TLS: "True"
+  EMAIL_HOST_USER: "jobganzevoort@bynderlottery.online"
+  SITENAME: "bynderlottery.online"
+  
+  # Redis configuration
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  
+  # Frontend configuration
+  NEXT_PUBLIC_API_URL: "https://bynderlottery.online/api"
+  NODE_ENV: "production"
+
+# Secrets (these should be provided via external secret management)
+secrets:
+  SECRET_KEY: "zgspvncphrkoeubvpxpduyqceapfznzcaarfhpbqpggrqajbkhlfeymtobfhiuan"
+  DATABASE_PASSWORD: "rxgcrsabhfxtuiuk"
+  EMAIL_HOST_PASSWORD: "eznqklgvsqcythnf"
+  ADMIN_EMAIL: "jobganzevoort@bynderlottery.online"
+  ADMIN_PASSWORD: "avqhpolfkhkfjkdp" 

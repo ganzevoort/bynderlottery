@@ -1,0 +1,93 @@
+# Network policies for the lottery application
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: lottery-backend-policy
+  namespace: lottery
+spec:
+  podSelector:
+    matchLabels:
+      app: lottery-backend
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: lottery
+    ports:
+    - protocol: TCP
+      port: 8000
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: lottery
+    ports:
+    - protocol: TCP
+      port: 5432  # PostgreSQL
+    - protocol: TCP
+      port: 6379  # Redis
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: lottery-frontend-policy
+  namespace: lottery
+spec:
+  podSelector:
+    matchLabels:
+      app: lottery-frontend
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: lottery
+    ports:
+    - protocol: TCP
+      port: 3000
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: lottery
+    ports:
+    - protocol: TCP
+      port: 8000  # Backend API
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: lottery-celery-policy
+  namespace: lottery
+spec:
+  podSelector:
+    matchLabels:
+      app: lottery-celery-worker
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: lottery
+    ports:
+    - protocol: TCP
+      port: 5555
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: lottery
+    ports:
+    - protocol: TCP
+      port: 5432  # PostgreSQL
+    - protocol: TCP
+      port: 6379  # Redis 

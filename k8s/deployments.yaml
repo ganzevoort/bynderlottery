@@ -1,0 +1,172 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lottery-backend
+  namespace: lottery
+  labels:
+    app: lottery-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lottery-backend
+  template:
+    metadata:
+      labels:
+        app: lottery-backend
+    spec:
+      imagePullSecrets:
+      - name: registry-secret
+      containers:
+      - name: lottery-backend
+        image: registry.bynderlottery.online/lottery-backend:latest
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: lottery-config
+        - secretRef:
+            name: lottery-secrets
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /admin/
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /admin/
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lottery-frontend
+  namespace: lottery
+  labels:
+    app: lottery-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lottery-frontend
+  template:
+    metadata:
+      labels:
+        app: lottery-frontend
+    spec:
+      imagePullSecrets:
+      - name: registry-secret
+      containers:
+      - name: lottery-frontend
+        image: registry.bynderlottery.online/lottery-frontend:latest
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - configMapRef:
+            name: lottery-config
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lottery-celery-worker
+  namespace: lottery
+  labels:
+    app: lottery-celery-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lottery-celery-worker
+  template:
+    metadata:
+      labels:
+        app: lottery-celery-worker
+    spec:
+      imagePullSecrets:
+      - name: registry-secret
+      containers:
+      - name: lottery-celery-worker
+        image: registry.bynderlottery.online/lottery-backend:latest
+        command: ["celery", "--app", "service.background", "worker", "--loglevel", "INFO", "--events"]
+        envFrom:
+        - configMapRef:
+            name: lottery-config
+        - secretRef:
+            name: lottery-secrets
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lottery-celery-beat
+  namespace: lottery
+  labels:
+    app: lottery-celery-beat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lottery-celery-beat
+  template:
+    metadata:
+      labels:
+        app: lottery-celery-beat
+    spec:
+      imagePullSecrets:
+      - name: registry-secret
+      containers:
+      - name: lottery-celery-beat
+        image: registry.bynderlottery.online/lottery-backend:latest
+        command: ["celery", "--app", "service.background", "beat", "--loglevel", "INFO"]
+        envFrom:
+        - configMapRef:
+            name: lottery-config
+        - secretRef:
+            name: lottery-secrets
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m" 

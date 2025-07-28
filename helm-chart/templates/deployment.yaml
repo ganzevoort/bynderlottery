@@ -1,0 +1,198 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "lottery.fullname" . }}-backend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "lottery.labels" . | nindent 4 }}
+    component: backend
+spec:
+  replicas: {{ .Values.replicaCount.backend }}
+  selector:
+    matchLabels:
+      {{- include "lottery.selectorLabels" . | nindent 6 }}
+      component: backend
+  template:
+    metadata:
+      labels:
+        {{- include "lottery.selectorLabels" . | nindent 8 }}
+        component: backend
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "lottery.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-backend
+          image: "{{ .Values.image.repository }}/lottery-backend:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "lottery.fullname" . }}-config
+            - secretRef:
+                name: {{ include "lottery.fullname" . }}-secrets
+          resources:
+            {{- toYaml .Values.resources.backend | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /admin/
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /admin/
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "lottery.fullname" . }}-frontend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "lottery.labels" . | nindent 4 }}
+    component: frontend
+spec:
+  replicas: {{ .Values.replicaCount.frontend }}
+  selector:
+    matchLabels:
+      {{- include "lottery.selectorLabels" . | nindent 6 }}
+      component: frontend
+  template:
+    metadata:
+      labels:
+        {{- include "lottery.selectorLabels" . | nindent 8 }}
+        component: frontend
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "lottery.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-frontend
+          image: "{{ .Values.image.repository }}/lottery-frontend:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "lottery.fullname" . }}-config
+          resources:
+            {{- toYaml .Values.resources.frontend | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "lottery.fullname" . }}-celery-worker
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "lottery.labels" . | nindent 4 }}
+    component: celery-worker
+spec:
+  replicas: {{ .Values.replicaCount.celeryWorker }}
+  selector:
+    matchLabels:
+      {{- include "lottery.selectorLabels" . | nindent 6 }}
+      component: celery-worker
+  template:
+    metadata:
+      labels:
+        {{- include "lottery.selectorLabels" . | nindent 8 }}
+        component: celery-worker
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "lottery.serviceAccountName" . }}
+      containers:
+        - name: {{ .Chart.Name }}-celery-worker
+          image: "{{ .Values.image.repository }}/lottery-backend:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["celery", "--app", "service.background", "worker", "--loglevel", "INFO", "--events"]
+          envFrom:
+            - configMapRef:
+                name: {{ include "lottery.fullname" . }}-config
+            - secretRef:
+                name: {{ include "lottery.fullname" . }}-secrets
+          resources:
+            {{- toYaml .Values.resources.celeryWorker | nindent 12 }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "lottery.fullname" . }}-celery-beat
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "lottery.labels" . | nindent 4 }}
+    component: celery-beat
+spec:
+  replicas: {{ .Values.replicaCount.celeryBeat }}
+  selector:
+    matchLabels:
+      {{- include "lottery.selectorLabels" . | nindent 6 }}
+      component: celery-beat
+  template:
+    metadata:
+      labels:
+        {{- include "lottery.selectorLabels" . | nindent 8 }}
+        component: celery-beat
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "lottery.serviceAccountName" . }}
+      containers:
+        - name: {{ .Chart.Name }}-celery-beat
+          image: "{{ .Values.image.repository }}/lottery-backend:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["celery", "--app", "service.background", "beat", "--loglevel", "INFO"]
+          envFrom:
+            - configMapRef:
+                name: {{ include "lottery.fullname" . }}-config
+            - secretRef:
+                name: {{ include "lottery.fullname" . }}-secrets
+          resources:
+            {{- toYaml .Values.resources.celeryBeat | nindent 12 }} 

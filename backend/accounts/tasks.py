@@ -11,7 +11,6 @@ from datetime import timedelta
 from django.conf import settings
 from django.utils.crypto import get_random_string
 from django.utils import timezone
-from django.urls import reverse
 from django.contrib.auth.models import User
 
 from service.background import celery_app

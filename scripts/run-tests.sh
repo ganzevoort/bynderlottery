@@ -115,57 +115,57 @@ case "${1:-help}" in
     "all")
         check_docker
         setup_test_env
-        print_status "Running all Cypress tests..."
-        docker compose -f $COMPOSE_FILE exec cypress cypress run
+        print_status "Running all Cypress tests (excluding demo)..."
+        docker compose -f $COMPOSE_FILE exec cypress cypress run --spec "e2e/tests/**/*.cy.ts"
         print_success "All tests completed!"
         ;;
     
     "demo")
         check_docker
         setup_test_env
-        run_tests "e2e/99-demo.cy.ts" "Complete Demo Journey"
+        run_tests "e2e/demo/**/*.cy.ts" "Complete Demo Journey"
         ;;
     
     "api")
         check_docker
         setup_test_env
-        run_tests "e2e/01-api-tests.cy.ts" "API Tests"
+        run_tests "e2e/tests/01-api-tests.cy.ts" "API Tests"
         ;;
     
     "signup-journey")
         check_docker
         setup_test_env
-        run_tests "e2e/03-signup-journey.cy.ts" "Signup Journey Tests"
+        run_tests "e2e/tests/03-signup-journey.cy.ts" "Signup Journey Tests"
         ;;
     
     "password-reset-journey")
         check_docker
         setup_test_env
-        run_tests "e2e/04-password-reset-journey.cy.ts" "Password Reset Journey Tests"
+        run_tests "e2e/tests/04-password-reset-journey.cy.ts" "Password Reset Journey Tests"
         ;;
     
     "profile-journey")
         check_docker
         setup_test_env
-        run_tests "e2e/05-profile-journey.cy.ts" "Profile Journey Tests"
+        run_tests "e2e/tests/05-profile-journey.cy.ts" "Profile Journey Tests"
         ;;
     
     "ballot-journey")
         check_docker
         setup_test_env
-        run_tests "e2e/06-ballot-journey.cy.ts" "Ballot Journey Tests"
+        run_tests "e2e/tests/06-ballot-journey.cy.ts" "Ballot Journey Tests"
         ;;
     
     "closed-draws-journey")
         check_docker
         setup_test_env
-        run_tests "e2e/07-closed-draws-journey.cy.ts" "Closed Draws Journey Tests"
+        run_tests "e2e/tests/07-closed-draws-journey.cy.ts" "Closed Draws Journey Tests"
         ;;
     
     "token-tests")
         check_docker
         setup_test_env
-        run_tests "e2e/02-token-tests.cy.ts" "Token Tests"
+        run_tests "e2e/tests/02-token-tests.cy.ts" "Token Tests"
         ;;
     
     "interactive")
@@ -229,7 +229,7 @@ case "${1:-help}" in
         check_docker
         setup_test_env
         print_status "Running Django unit tests..."
-        if docker compose -f $COMPOSE_FILE exec -T backend python manage.py test; then
+        if docker compose -f $COMPOSE_FILE exec -T backend python manage.py test -v2; then
             print_success "Django unit tests completed successfully!"
         else
             print_error "Django unit tests failed!"
@@ -282,7 +282,7 @@ case "${1:-help}" in
         
         # Run unit tests
         print_status "Running Django unit tests..."
-        if ! docker compose -f $COMPOSE_FILE exec -T backend python manage.py test; then
+        if ! docker compose -f $COMPOSE_FILE exec -T backend python manage.py test -v2; then
             print_error "Django unit tests failed!"
             exit 1
         fi
@@ -307,7 +307,7 @@ case "${1:-help}" in
             exit 1
         fi
         
-        if ! docker compose -f $COMPOSE_FILE exec -T backend python manage.py test; then
+        if ! docker compose -f $COMPOSE_FILE exec -T backend python manage.py test -v2; then
             print_error "Backend unit tests failed!"
             exit 1
         fi
@@ -316,7 +316,7 @@ case "${1:-help}" in
         
         # Run frontend tests
         print_status "Running frontend tests..."
-        if docker compose -f $COMPOSE_FILE exec cypress cypress run; then
+        if docker compose -f $COMPOSE_FILE exec cypress cypress run --spec "e2e/tests/**/*.cy.ts"; then
             print_success "Frontend tests completed successfully!"
         else
             print_error "Frontend tests failed!"
@@ -332,7 +332,7 @@ case "${1:-help}" in
         echo "Usage: $0 [command]"
         echo ""
         echo "Frontend Tests (Cypress):"
-        echo "  all                    Run all Cypress tests"
+        echo "  all                    Run all Cypress tests (excluding demo)"
         echo "  api                    Run API tests only"
         echo "  token-tests            Run token tests only"
         echo "  signup-journey         Run signup journey tests only"
@@ -350,7 +350,7 @@ case "${1:-help}" in
         echo "  backend-check          Run all backend checks (lint + format + tests)"
         echo ""
         echo "Full Test Suite:"
-        echo "  full-test              Run all tests (backend + frontend)"
+        echo "  full-test              Run all tests (backend + frontend, excluding demo)"
         echo ""
         echo "Environment Management:"
         echo "  setup                  Set up test environment (start containers + migrate + seed data)"
@@ -364,14 +364,16 @@ case "${1:-help}" in
         echo "  help                   Show this help message"
         echo ""
         echo "Cypress Test Structure:"
-        echo "  01-api-tests.cy.ts              - API endpoint validation"
-        echo "  02-token-tests.cy.ts            - Email verification and password reset tokens"
-        echo "  03-signup-journey.cy.ts         - Complete signup and email verification flow"
-        echo "  04-password-reset-journey.cy.ts - Password reset workflow"
-        echo "  05-profile-journey.cy.ts        - Profile management and updates"
-        echo "  06-ballot-journey.cy.ts         - Ballot purchase and assignment"
-        echo "  07-closed-draws-journey.cy.ts   - Viewing closed draws and results"
-        echo "  99-demo.cy.ts                   - Complete demo journey for product owner"
+        echo "  e2e/tests/                      - Functional tests (automatically included in 'all')"
+        echo "    01-api-tests.cy.ts            - API endpoint validation"
+        echo "    02-token-tests.cy.ts          - Email verification and password reset tokens"
+        echo "    03-signup-journey.cy.ts       - Complete signup and email verification flow"
+        echo "    04-password-reset-journey.cy.ts - Password reset workflow"
+        echo "    05-profile-journey.cy.ts      - Profile management and updates"
+        echo "    06-ballot-journey.cy.ts       - Ballot purchase and assignment"
+        echo "    07-closed-draws-journey.cy.ts - Viewing closed draws and results"
+        echo "  e2e/demo/                       - Demo tests (run separately with 'demo')"
+        echo "    99-demo.cy.ts                 - Complete demo journey for product owner"
         echo ""
         echo "Test Environment Features:"
         echo "  - SQLite database (faster than PostgreSQL)"

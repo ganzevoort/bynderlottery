@@ -132,9 +132,9 @@ docker login registry.transip.nl
 
 Edit the following files to use your TransIP registry:
 
-- `k8s/deployments.yaml`
-- `helm-chart/values.yaml`
-- `k8s/deploy.sh`
+- [`k8s/deployments.yaml`](../k8s/deployments.yaml)
+- [`helm-chart/values.yaml`](../helm-chart/values.yaml)
+- [`k8s/deploy.sh`](../k8s/deploy.sh)
 
 Replace `your-registry` with your actual TransIP registry URL.
 
@@ -154,7 +154,7 @@ docker push registry.transip.nl/your-username/lottery-frontend:latest
 
 ### 6.1 Update Secrets
 
-Edit `k8s/secrets.yaml` with your actual production values:
+Edit [`k8s/secrets.yaml`](../k8s/secrets.yaml) with your actual production values:
 
 ```bash
 # Generate a secure Django secret key
@@ -168,7 +168,7 @@ echo -n "your-email-password" | base64
 
 ### 6.2 Update ConfigMaps
 
-Edit `k8s/configmaps.yaml` with your domain and email settings:
+Edit [`k8s/configmaps.yaml`](../k8s/configmaps.yaml) with your domain and email settings:
 
 ```yaml
 SITENAME: "yourdomain.com"
@@ -223,7 +223,7 @@ kubectl apply -f k8s/services.yaml
 kubectl apply -f k8s/ingress.yaml
 
 # Or use Helm chart
-helm install lottery ./helm-chart \
+helm install lottery helm-chart \
   --namespace lottery \
   --values helm-chart/values.yaml
 ```

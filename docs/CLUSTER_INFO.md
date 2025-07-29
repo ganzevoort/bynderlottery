@@ -16,8 +16,8 @@ kubectl get nodes
 
 ### Deploy Application
 ```bash
-# Quick deploy
-./quick-deploy.sh bynderlottery.online registry.transip.nl/your-username
+# Deploy via GitHub Actions
+git push origin main
 
 # Or step-by-step
 ./k8s/deploy.sh deploy -d bynderlottery.online

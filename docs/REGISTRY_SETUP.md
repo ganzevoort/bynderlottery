@@ -15,7 +15,7 @@ Based on the [TransIP documentation](https://www.transip.nl/knowledgebase/7078-e
 ### **Option 1: Automated Setup**
 ```bash
 # Run the setup script
-./setup-registry.sh lottery lottery-secure-password-2024
+./scripts/setup-registry.sh lottery lottery-secure-password-2024
 ```
 
 ### **Option 2: Manual Setup**

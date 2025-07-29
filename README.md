@@ -37,37 +37,73 @@ The system is built with Django and consists of two main apps:
 
 ```
 lottery/
-├── backend/
-│   ├── accounts/                 # User authentication app
-│   │   ├── models.py            # Account model with User relationship
-│   │   ├── forms.py             # Authentication forms
-│   │   ├── views.py             # Traditional Django views
-│   │   ├── serializers.py       # DRF serializers for API
-│   │   ├── api_views.py         # API views
-│   │   ├── tasks.py             # Celery tasks for email sending
-│   │   ├── templates/           # HTML templates
-│   │   └── tests.py             # Test suite
+├── backend/                     # Django backend application
+│   ├── accounts/               # User authentication app
+│   │   ├── models.py          # Account model with User relationship
+│   │   ├── forms.py           # Authentication forms
+│   │   ├── views.py           # Traditional Django views
+│   │   ├── serializers.py     # DRF serializers for API
+│   │   ├── api_views.py       # API views
+│   │   ├── tasks.py           # Celery tasks for email sending
+│   │   ├── templates/         # HTML templates
+│   │   └── tests.py           # Test suite
 │   │
-│   ├── lottery/                 # Core lottery app
-│   │   ├── models.py            # Draw, Prize, Ballot models
-│   │   ├── views.py             # Traditional Django views
-│   │   ├── serializers.py       # DRF serializers for API
-│   │   ├── api_views.py         # API views
-│   │   ├── forms.py             # Ballot purchase forms
-│   │   ├── templates/           # HTML templates
-│   │   └── tests.py             # Test suite
+│   ├── lottery/               # Core lottery app
+│   │   ├── models.py          # Draw, Prize, Ballot models
+│   │   ├── views.py           # Traditional Django views
+│   │   ├── serializers.py     # DRF serializers for API
+│   │   ├── api_views.py       # API views
+│   │   ├── forms.py           # Ballot purchase forms
+│   │   ├── templates/         # HTML templates
+│   │   └── tests.py           # Test suite
 │   │
-│   ├── service/                 # Main project settings
-│   │   ├── settings/            # Django settings
-│   │   ├── templates/           # Base templates
-│   │   └── static/              # Static files (logos, etc.)
+│   ├── service/               # Main project settings
+│   │   ├── settings/          # Django settings
+│   │   ├── templates/         # Base templates
+│   │   └── static/            # Static files (logos, etc.)
 │   │
-│   ├── requirements.txt         # Python dependencies
-│   ├── manage.py               # Django management
-│   └── Dockerfile              # Container configuration
+│   ├── requirements.txt       # Python dependencies
+│   ├── manage.py             # Django management
+│   └── Dockerfile            # Container configuration
 │
-├── compose.yaml                 # Docker Compose configuration
-└── README.md                   # This file
+├── frontend/                  # Next.js frontend application
+│   ├── src/
+│   │   ├── app/              # Next.js app router
+│   │   ├── components/       # React components
+│   │   └── lib/              # Utility functions
+│   ├── package.json          # Node.js dependencies
+│   └── Dockerfile            # Container configuration
+│
+├── scripts/                   # Utility scripts
+│   ├── run-tests.sh          # Main testing script
+│   ├── update-compose.py     # CI/CD compose file updater
+│   ├── setup-registry.sh     # Registry setup script
+│   └── dbdump.sh             # Database dump script
+│
+├── docs/                      # Project documentation
+│   ├── TEST_ENVIRONMENT.md   # Test environment setup
+│   ├── TESTING.md            # Testing guide
+│   ├── REGISTRY_SETUP.md     # Docker registry setup
+│   ├── DEPLOYMENT_SUMMARY.md # Production deployment
+│   ├── CLUSTER_INFO.md       # Kubernetes cluster info
+│   └── TRANSIP_SETUP.md      # TransIP VPS setup
+│
+├── k8s/                       # Kubernetes manifests
+│   ├── deployments.yaml       # Application deployments
+│   ├── configmaps.yaml        # Configuration
+│   ├── secrets.yaml           # Sensitive data
+│   ├── ingress.yaml           # External access
+│   └── registry-deployment.yaml # Docker registry
+│
+├── .github/                   # GitHub Actions CI/CD
+│   ├── workflows/
+│   │   └── ci-cd.yml         # Main CI/CD pipeline
+│   └── actions/
+│       └── setup-docker/      # Reusable Docker setup
+│
+├── compose.yaml               # Development environment
+├── compose.test.yaml          # Test environment
+└── README.md                 # This file
 ```
 
 ## 🗄️ Database Models
@@ -177,7 +213,7 @@ class Ballot(models.Model):
 4. **Access the application**
    - Web Interface: http://localhost:8000
    - Admin Interface: http://localhost:8000/admin
-   - API Documentation: See `backend/accounts/API.md` and `backend/lottery/API.md`
+   - API Documentation: See [`backend/accounts/API.md`](backend/accounts/API.md) and [`backend/lottery/API.md`](backend/lottery/API.md)
 
 5. **Create test data**
     A superuser will be automatically created (see environment).
@@ -294,9 +330,9 @@ The test suite includes:
 5. **Profile** - Account settings and information
 
 ### Settings Structure
-- **`service/settings/defaults.py`** - Django default settings
-- **`service/settings/__init__.py`** - Custom project settings
-- **`service/settings/environment.py`** - Environment-specific settings
+- **[`service/settings/defaults.py`](backend/service/settings/defaults.py)** - Django default settings
+- **[`service/settings/__init__.py`](backend/service/settings/__init__.py)** - Custom project settings
+- **[`service/settings/environment.py`](backend/service/settings/environment.py)** - Environment-specific settings
 
 ## 🚀 Deployment
 
@@ -354,6 +390,23 @@ curl -X GET http://localhost:8000/api/lottery/my-ballots/ \
   -H "Cookie: sessionid=your-session-id"
 ```
 
+## 📚 Documentation
+
+### Project Documentation
+All project documentation is organized in the `docs/` directory:
+
+- **[TEST_ENVIRONMENT.md](docs/TEST_ENVIRONMENT.md)** - Test environment setup and configuration
+- **[TESTING.md](docs/TESTING.md)** - Comprehensive testing guide and best practices
+- **[TODO.md](docs/TODO.md)** - Project todo list and upcoming features
+- **[REGISTRY_SETUP.md](docs/REGISTRY_SETUP.md)** - Docker registry configuration
+- **[DEPLOYMENT_SUMMARY.md](docs/DEPLOYMENT_SUMMARY.md)** - Production deployment details
+- **[CLUSTER_INFO.md](docs/CLUSTER_INFO.md)** - Kubernetes cluster information
+- **[TRANSIP_SETUP.md](docs/TRANSIP_SETUP.md)** - TransIP VPS setup guide
+
+### API Documentation
+- **Accounts API**: See [`backend/accounts/API.md`](backend/accounts/API.md)
+- **Lottery API**: See [`backend/lottery/API.md`](backend/lottery/API.md)
+
 ## 🤝 Contributing
 
 ### Development Workflow
@@ -396,6 +449,55 @@ curl -X GET http://localhost:8000/api/lottery/my-ballots/ \
 - **Issues** - Create an issue with detailed information
 - **Discussions** - Use GitHub discussions for questions
 
+## 🚀 CI/CD Pipeline
+
+### Automated Workflow
+The project uses GitHub Actions for continuous integration and deployment:
+
+#### **Pipeline Stages:**
+1. **Build** - Parallel backend and frontend image building
+2. **Test** - Full test suite execution with Docker
+3. **Demo** - Automated demo video creation (main branch only)
+4. **Deploy** - Production deployment to Kubernetes (main branch only)
+
+#### **Key Features:**
+- **Parallel builds** - Backend and frontend build simultaneously
+- **Docker-based testing** - Consistent test environment
+- **Registry integration** - Private Docker registry for images
+- **Kubernetes deployment** - Automated production deployment
+- **Manual approval** - Deploy stage requires manual approval
+
+#### **Workflow Structure:**
+```yaml
+build-backend ──┐
+                ├── test ──┐
+build-frontend ──┘         ├── demo
+                           └── deploy
+```
+
+### Local Development
+For local development and testing:
+
+```bash
+# Run the full test suite
+./scripts/run-tests.sh full-test
+
+# Run specific test categories
+./scripts/run-tests.sh api
+./scripts/run-tests.sh user-journey
+
+# Interactive testing
+./scripts/run-tests.sh interactive
+```
+
+### Production Deployment
+The application is deployed to a Kubernetes cluster with:
+- **PostgreSQL** database (Helm chart)
+- **Redis** for caching and Celery
+- **Nginx Ingress** for external access
+- **Docker Registry** for image storage
+- **SSL/TLS** termination and HTTPS
+
 ## 🔮 Future Enhancements
 
 ### Planned Features
@@ -410,5 +512,5 @@ curl -X GET http://localhost:8000/api/lottery/my-ballots/ \
 ### Technical Improvements
 - **Caching** - Redis caching for improved performance
 - **Monitoring** - Application performance monitoring
-- **CI/CD** - Automated testing and deployment
-- **Container orchestration** - Kubernetes deployment 
+- **CI/CD** - Automated testing and deployment ✅
+- **Container orchestration** - Kubernetes deployment ✅ 

@@ -25,7 +25,6 @@ services:
       - ./frontend/public:/code/public
       - ./frontend/README.md:/code/README.md
       - ./frontend/src:/code/src
-    command: yarn dev
 
   backend:
     build:

@@ -36,14 +36,24 @@ spec:
             cpu: "200m"
         livenessProbe:
           httpGet:
-            path: /admin/
+            path: /api/lottery/stats/
             port: 8000
+            httpHeaders:
+            - name: Host
+              value: bynderlottery.online
+            - name: X-Forwarded-Proto
+              value: https
           initialDelaySeconds: 60
           periodSeconds: 30
         readinessProbe:
           httpGet:
-            path: /admin/
+            path: /api/lottery/stats/
             port: 8000
+            httpHeaders:
+            - name: Host
+              value: bynderlottery.online
+            - name: X-Forwarded-Proto
+              value: https
           initialDelaySeconds: 30
           periodSeconds: 10
 

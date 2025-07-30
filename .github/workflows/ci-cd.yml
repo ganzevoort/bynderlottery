@@ -2,73 +2,86 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, fix/* ]
   pull_request:
     branches: [ main ]
 
 env:
   REGISTRY: registry.bynderlottery.online
+  REGISTRY_USERNAME: lottery
   BACKEND_IMAGE: lottery-backend
   FRONTEND_IMAGE: lottery-frontend
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  test:
-    name: Run Tests
+  build-backend:
+    name: Build Backend Image
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Build test images
-      run: |
-        docker compose -f compose.test.yaml build
-
-    - name: Run full test suite
-      run: |
-        chmod +x ./run-tests.sh
-        ./run-tests.sh full-test
-
-  build:
-    name: Build Images
-    runs-on: ubuntu-latest
-    needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Log in to Container Registry
-      uses: docker/login-action@v3
+    - name: Setup Docker Environment
+      uses: ./.github/actions/setup-docker
       with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        registry-password: ${{ secrets.REGISTRY_PASSWORD }}
 
-    - name: Build and push backend image
+    - name: Build backend image
       uses: docker/build-push-action@v5
       with:
         context: ./backend
         push: true
-        tags: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:latest
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+        tags: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:build-${{ github.sha }}
+        target: production
+        cache-from: type=gha,type=registry,ref=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:buildcache
+        cache-to: type=gha,mode=max,type=registry,ref=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:buildcache,mode=max
 
-    - name: Build and push frontend image
+  build-frontend:
+    name: Build Frontend Image
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Docker Environment
+      uses: ./.github/actions/setup-docker
+      with:
+        registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - name: Build frontend image
       uses: docker/build-push-action@v5
       with:
         context: ./frontend
         push: true
-        tags: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:latest
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+        tags: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:build-${{ github.sha }}
+        target: production
+        cache-from: type=gha,type=registry,ref=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:buildcache
+        cache-to: type=gha,mode=max,type=registry,ref=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:buildcache,mode=max
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Docker Environment
+      uses: ./.github/actions/setup-docker
+      with:
+        registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - name: Pull test images
+      run: docker compose -f compose.test.yaml pull --quiet
+
+    - name: Run full test suite
+      run: ./scripts/run-tests.sh full-test
 
   demo:
     name: Create Demo Video
@@ -80,17 +93,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+    - name: Setup Docker Environment
+      uses: ./.github/actions/setup-docker
+      with:
+        registry-password: ${{ secrets.REGISTRY_PASSWORD }}
 
-    - name: Build test images
-      run: |
-        docker compose -f compose.test.yaml build
+    - name: Pull test images
+      run: docker compose -f compose.test.yaml pull --quiet
 
     - name: Run demo test suite
-      run: |
-        chmod +x ./run-tests.sh
-        ./run-tests.sh demo
+      run: ./scripts/run-tests.sh demo
 
     - name: Upload demo video artifacts
       uses: actions/upload-artifact@v4
@@ -102,7 +114,7 @@ jobs:
   deploy:
     name: Deploy to Production
     runs-on: ubuntu-latest
-    needs: [build, demo]
+    needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment: production
     
@@ -119,6 +131,15 @@ jobs:
       run: |
         echo "${{ secrets.KUBECONFIG }}" | base64 -d > kubeconfig
         export KUBECONFIG=kubeconfig
+
+    - name: Set up crane
+      uses: imjasonh/setup-crane@v0.3
+
+    - name: Retag images as latest
+      run: |
+        crane auth login ${{ env.REGISTRY }} -u ${{ env.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }}
+        crane copy ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:build-${{ github.sha }} ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:latest
+        crane copy ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:build-${{ github.sha }} ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:latest
 
     - name: Deploy to Kubernetes
       run: |

@@ -2,7 +2,7 @@
 
 ## ✅ Configuration Updated
 
-All Kubernetes configuration files have been updated with your specific settings from `.env-k8s`:
+All Kubernetes configuration files have been updated with your specific settings from [`.env-k8s`](../.env-k8s):
 
 ### **Domain Configuration**
 - **Domain**: `bynderlottery.online`
@@ -66,18 +66,19 @@ kubectl get nodes
 
 Before deploying, update these files with your actual registry URL:
 
-- `k8s/deployments.yaml` - Replace `your-registry` with your registry URL
-- `helm-chart/values.yaml` - Replace `your-registry` with your registry URL
-- `quick-deploy.sh` - Update the default registry
+- [`k8s/deployments.yaml`](../k8s/deployments.yaml) - Replace `your-registry` with your registry URL
+- [`helm-chart/values.yaml`](../helm-chart/values.yaml) - Replace `your-registry` with your registry URL
+
 
 ### 5. Deploy Application
 
-**Option A: Quick Deploy (Recommended)**
+**Option A: GitHub Actions Deployment (Recommended)**
 ```bash
-./quick-deploy.sh bynderlottery.online registry.transip.nl/your-username
+# Push to main branch to trigger automatic deployment
+git push origin main
 ```
 
-**Option B: Step-by-step**
+**Option B: Manual Step-by-step**
 ```bash
 # Install dependencies
 ./k8s/deploy.sh deploy -d bynderlottery.online
@@ -116,29 +117,28 @@ kubectl logs -f deployment/lottery-backend -n lottery
 ## 📋 Files Updated
 
 ### Kubernetes Manifests
-- ✅ `k8s/configmaps.yaml` - Environment configuration
-- ✅ `k8s/secrets.yaml` - Base64 encoded secrets
-- ✅ `k8s/ingress.yaml` - Domain routing
-- ✅ `k8s/deployments.yaml` - Application deployments
-- ✅ `k8s/services.yaml` - Service definitions
-- ✅ `k8s/hpa.yaml` - Auto-scaling configuration
+- ✅ [`k8s/configmaps.yaml`](../k8s/configmaps.yaml) - Environment configuration
+- ✅ [`k8s/secrets.yaml`](../k8s/secrets.yaml) - Base64 encoded secrets
+- ✅ [`k8s/ingress.yaml`](../k8s/ingress.yaml) - Domain routing
+- ✅ [`k8s/deployments.yaml`](../k8s/deployments.yaml) - Application deployments
+- ✅ [`k8s/services.yaml`](../k8s/services.yaml) - Service definitions
+- ✅ [`k8s/hpa.yaml`](../k8s/hpa.yaml) - Auto-scaling configuration
 
 ### Helm Chart
-- ✅ `helm-chart/values.yaml` - Chart configuration
-- ✅ `helm-chart/templates/` - All template files
+- ✅ [`helm-chart/values.yaml`](../helm-chart/values.yaml) - Chart configuration
+- ✅ [`helm-chart/templates/`](../helm-chart/templates/) - All template files
 
 ### Deployment Scripts
-- ✅ `quick-deploy.sh` - One-command deployment
-- ✅ `k8s/deploy.sh` - Step-by-step deployment
-- ✅ `k8s/monitoring.yaml` - Monitoring setup
+- ✅ [`k8s/deploy.sh`](../k8s/deploy.sh) - Step-by-step deployment
+- ✅ [`k8s/monitoring.yaml`](../k8s/monitoring.yaml) - Monitoring setup
 
 ## 🔧 Customization Needed
 
 Before deployment, you need to:
 
 1. **Update Registry URL**: Replace `your-registry` with your actual TransIP registry URL in:
-   - `k8s/deployments.yaml`
-   - `helm-chart/values.yaml`
+   - [`k8s/deployments.yaml`](../k8s/deployments.yaml)
+   - [`helm-chart/values.yaml`](../helm-chart/values.yaml)
 
 2. **Verify Email Settings**: Ensure `mail.candidmind.nl` is accessible and credentials are correct
 

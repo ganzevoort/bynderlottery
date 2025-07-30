@@ -110,57 +110,16 @@ _add_middleware(
 
 
 # Logging
-LOGDIR = BASE_DIR.parent / "logs"
 LOGGING = {
     "version": 1,
-    "formatters": {
-        "simple": {"format": "%(asctime)s %(message)s"},
-        "verbose": {
-            "format": "%(levelname)s %(asctime)s "
-            "%(module)s %(process)d %(thread)d %(message)s"
-        },
-    },
+    "disable_existing_loggers": False,
     "handlers": {
         "console": {
-            "level": "DEBUG",
             "class": "logging.StreamHandler",
-            "formatter": "simple",
-        },
-        "requestlog": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "maxBytes": 10 * 1024 * 1024,
-            "backupCount": 1,
-            "filename": os.path.join(LOGDIR, "requests.log"),
-            "formatter": "",
-        },
-        "dblog": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "maxBytes": 10 * 1024 * 1024,
-            "backupCount": 1,
-            "filename": os.path.join(LOGDIR, "db.log"),
-            "formatter": "",
         },
     },
-    "loggers": {
-        "django.request": {
-            "handlers": ["requestlog"],
-            "level": "INFO",
-            "propagate": True,
-        },
-        "django.db.backends": {
-            "handlers": ["dblog"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
-        "accounts": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
-        "service": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
     },
 }

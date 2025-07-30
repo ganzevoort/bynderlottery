@@ -5,22 +5,23 @@ This repository uses GitHub Actions for continuous integration and deployment.
 ## Pipeline Overview
 
 The pipeline runs on:
-- **Push to main branch**: Full CI/CD (test → build → demo → deploy)
-- **Pull requests**: Tests only (no deployment)
+- **Push to main branch**: Full CI/CD (build → test → demo & deploy)
+- **Pull requests**: Build and test only (no deployment)
 
 ## Pipeline Stages
 
-### 1. Test Stage
-- **Docker-based testing**: Uses `compose.test.yaml` for consistent environment
+### 1. Build Stage
+- **Parallel builds**: Backend and frontend images build simultaneously
+- **Docker registry**: Images pushed to `registry.bynderlottery.online`
+- **Build caching**: Uses GitHub Actions cache for faster builds
+- **Image tagging**: Uses SHA-based tags for traceability
+
+### 2. Test Stage
+- **Docker-based testing**: Uses [`compose.test.yaml`](../../compose.test.yaml) for consistent environment
 - **Backend tests**: Django unit tests with SQLite (test environment)
 - **Frontend tests**: Next.js tests
 - **E2E tests**: Cypress integration tests
 - **Full test suite**: Backend linting, formatting, tests + frontend E2E tests
-
-### 2. Build Stage (main branch only)
-- Builds Docker images for backend and frontend
-- Pushes images to `registry.bynderlottery.online`
-- Uses GitHub Actions cache for faster builds
 
 ### 3. Demo Stage (main branch only)
 - Runs demo test suite using Docker containers
@@ -37,8 +38,7 @@ The pipeline runs on:
 Add these secrets in your GitHub repository settings:
 
 ### Container Registry
-- `REGISTRY_USERNAME`: Username for `registry.bynderlottery.online`
-- `REGISTRY_PASSWORD`: Password for `registry.bynderlottery.online`
+- `REGISTRY_PASSWORD`: Password for `registry.bynderlottery.online` (username is set as environment variable)
 
 ### Kubernetes Access
 - `KUBECONFIG`: Base64-encoded kubeconfig file for cluster access
@@ -57,17 +57,20 @@ The `production` environment is configured with:
 
 ## Local Development
 
-For local testing, use the `run-tests.sh` script:
+For local testing, use the [`scripts/run-tests.sh`](../../scripts/run-tests.sh) script:
 
 ```bash
 # Run all tests
-./run-tests.sh full-test
+./scripts/run-tests.sh full-test
 
 # Run only E2E tests
-./run-tests.sh all
+./scripts/run-tests.sh all
 
 # Run only backend tests
-./run-tests.sh backend-check
+./scripts/run-tests.sh backend-check
+
+# Interactive testing
+./scripts/run-tests.sh interactive
 ```
 
 ## Troubleshooting
@@ -95,6 +98,23 @@ If you need to deploy manually:
 2. Select the latest successful workflow
 3. Click "Deploy to Production" job
 4. Click "Re-run jobs" → "Re-run failed jobs"
+
+## Workflow Structure
+
+The pipeline follows this dependency structure:
+
+```yaml
+build-backend ──┐
+                ├── test ──┐
+build-frontend ──┘         ├── demo
+                           └── deploy
+```
+
+### Key Features
+- **Parallel builds**: Backend and frontend build simultaneously
+- **Docker-based testing**: Consistent test environment
+- **Composite actions**: Reusable Docker setup steps
+- **Parallel demo & deploy**: Demo and deployment run in parallel after tests pass
 
 ## Monitoring
 

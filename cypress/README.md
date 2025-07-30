@@ -19,28 +19,28 @@ This directory contains comprehensive integration tests for the Lottery System u
 3. **Run specific test suites:**
    ```bash
    # API tests
-   docker compose run cypress cypress run --spec 'cypress/e2e/01-api-tests.cy.ts'
+   docker compose run cypress cypress run --spec 'e2e/tests/01-api-tests.cy.ts'
    
    # Token tests
-   docker compose run cypress cypress run --spec 'cypress/e2e/02-token-tests.cy.ts'
+   docker compose run cypress cypress run --spec 'e2e/tests/02-token-tests.cy.ts'
    
    # Signup journey
-   docker compose run cypress cypress run --spec 'cypress/e2e/03-signup-journey.cy.ts'
+   docker compose run cypress cypress run --spec 'e2e/tests/03-signup-journey.cy.ts'
    
    # Password reset journey
-   docker compose run cypress cypress run --spec 'cypress/e2e/04-password-reset-journey.cy.ts'
+   docker compose run cypress cypress run --spec 'e2e/tests/04-password-reset-journey.cy.ts'
    
    # Profile journey
-   docker compose run cypress cypress run --spec 'cypress/e2e/05-profile-journey.cy.ts'
+   docker compose run cypress cypress run --spec 'e2e/tests/05-profile-journey.cy.ts'
    
    # Ballot journey
-   docker compose run cypress cypress run --spec 'cypress/e2e/06-ballot-journey.cy.ts'
+   docker compose run cypress cypress run --spec 'e2e/tests/06-ballot-journey.cy.ts'
    
    # Closed draws journey
-   docker compose run cypress cypress run --spec 'cypress/e2e/07-closed-draws-journey.cy.ts'
+   docker compose run cypress cypress run --spec 'e2e/tests/07-closed-draws-journey.cy.ts'
    
    # Complete demo journey
-   docker compose run cypress cypress run --spec 'cypress/e2e/99-demo.cy.ts'
+   docker compose run cypress cypress run --spec 'e2e/demo/99-demo.cy.ts'
    ```
 
 4. **Run tests in interactive mode:**
@@ -57,14 +57,16 @@ cypress/
 │   ├── e2e.ts                # Global test setup and custom commands
 │   └── commands.ts           # Custom Cypress commands
 ├── e2e/
-│   ├── 01-api-tests.cy.ts              # API endpoint validation
-│   ├── 02-token-tests.cy.ts            # Email verification and password reset tokens
-│   ├── 03-signup-journey.cy.ts         # Complete signup and email verification flow
-│   ├── 04-password-reset-journey.cy.ts # Password reset workflow
-│   ├── 05-profile-journey.cy.ts        # Profile management and updates
-│   ├── 06-ballot-journey.cy.ts         # Ballot purchase and assignment
-│   ├── 07-closed-draws-journey.cy.ts   # Viewing closed draws and results
-│   └── 99-demo.cy.ts                   # Complete demo journey for product owner
+│   ├── tests/                # Functional tests (automatically included in 'all')
+│   │   ├── 01-api-tests.cy.ts              # API endpoint validation
+│   │   ├── 02-token-tests.cy.ts            # Email verification and password reset tokens
+│   │   ├── 03-signup-journey.cy.ts         # Complete signup and email verification flow
+│   │   ├── 04-password-reset-journey.cy.ts # Password reset workflow
+│   │   ├── 05-profile-journey.cy.ts        # Profile management and updates
+│   │   ├── 06-ballot-journey.cy.ts         # Ballot purchase and assignment
+│   │   └── 07-closed-draws-journey.cy.ts   # Viewing closed draws and results
+│   └── demo/                 # Demo tests (run separately with 'demo')
+│       └── 99-demo.cy.ts                   # Complete demo journey for product owner
 └── README.md                           # This file
 ```
 
@@ -249,7 +251,7 @@ Cypress generates detailed test reports including:
 ### Common Issues
 
 1. **Tests failing due to timing:**
-   - Increase `defaultCommandTimeout` in `cypress.config.ts`
+   - Increase `defaultCommandTimeout` in [`cypress.config.ts`](./cypress.config.ts)
    - Add explicit waits for API responses
 
 2. **Database state issues:**

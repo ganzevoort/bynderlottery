@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
 
   // Note: allowedDevOrigins is a Next.js 15 feature that may not be fully implemented yet
   // The cross-origin warning is informational and doesn't affect functionality
+
+  // Enable standalone output for optimized production builds
+  output: 'standalone',
 };
 
 export default nextConfig;

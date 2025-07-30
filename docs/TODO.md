@@ -11,7 +11,3 @@
 - payout for winners
 - payment for ballot purchases
 - remove ballots without prize for closed draws older than X.
-
-# cicd pipeline
-- setup pipeline to do tests
-- and to deploy to production (k8s)

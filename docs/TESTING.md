@@ -17,41 +17,44 @@ The Lottery System includes multiple layers of testing:
 
 ```bash
 # Set up test environment
-./run-tests.sh setup
+./scripts/run-tests.sh setup
 
 # Run all tests
-./run-tests.sh all
+./scripts/run-tests.sh all
 
 # Run specific test suites
-./run-tests.sh api
-./run-tests.sh token-tests
-./run-tests.sh signup-journey
-./run-tests.sh password-reset-journey
-./run-tests.sh profile-journey
-./run-tests.sh ballot-journey
-./run-tests.sh closed-draws-journey
-./run-tests.sh user-journey
+./scripts/run-tests.sh api
+./scripts/run-tests.sh token-tests
+./scripts/run-tests.sh signup-journey
+./scripts/run-tests.sh password-reset-journey
+./scripts/run-tests.sh profile-journey
+./scripts/run-tests.sh ballot-journey
+./scripts/run-tests.sh closed-draws-journey
+./scripts/run-tests.sh user-journey
 
 # Interactive mode
-./run-tests.sh interactive
+./scripts/run-tests.sh interactive
 ```
 
 ### Test Structure
 
-The Cypress tests are organized in logical order:
+The Cypress tests are organized in logical directories:
 
-1. **01-api-tests.cy.ts** - API endpoint validation
-2. **02-token-tests.cy.ts** - Email verification and password reset tokens
-3. **03-signup-journey.cy.ts** - Complete signup and email verification flow
-4. **04-password-reset-journey.cy.ts** - Password reset workflow
-5. **05-profile-journey.cy.ts** - Profile management and updates
-6. **06-ballot-journey.cy.ts** - Ballot purchase and assignment
-7. **07-closed-draws-journey.cy.ts** - Viewing closed draws and results
-8. **08-user-journey.cy.ts** - Overview test for all user journeys
+#### Functional Tests ([`e2e/tests/`](../cypress/e2e/tests/))
+1. **[01-api-tests.cy.ts](../cypress/e2e/tests/01-api-tests.cy.ts)** - API endpoint validation
+2. **[02-token-tests.cy.ts](../cypress/e2e/tests/02-token-tests.cy.ts)** - Email verification and password reset tokens
+3. **[03-signup-journey.cy.ts](../cypress/e2e/tests/03-signup-journey.cy.ts)** - Complete signup and email verification flow
+4. **[04-password-reset-journey.cy.ts](../cypress/e2e/tests/04-password-reset-journey.cy.ts)** - Password reset workflow
+5. **[05-profile-journey.cy.ts](../cypress/e2e/tests/05-profile-journey.cy.ts)** - Profile management and updates
+6. **[06-ballot-journey.cy.ts](../cypress/e2e/tests/06-ballot-journey.cy.ts)** - Ballot purchase and assignment
+7. **[07-closed-draws-journey.cy.ts](../cypress/e2e/tests/07-closed-draws-journey.cy.ts)** - Viewing closed draws and results
+
+#### Demo Tests ([`e2e/demo/`](../cypress/e2e/demo/))
+- **[99-demo.cy.ts](../cypress/e2e/demo/99-demo.cy.ts)** - Complete demo journey for product owner
 
 ### Test Scenarios
 
-#### 1. API Tests (01-api-tests.cy.ts)
+#### 1. API Tests ([e2e/tests/01-api-tests.cy.ts](../cypress/e2e/tests/01-api-tests.cy.ts))
 
 Tests all backend API endpoints:
 
@@ -74,7 +77,7 @@ describe('API Endpoints', () => {
 })
 ```
 
-#### 2. Token Tests (02-token-tests.cy.ts)
+#### 2. Token Tests ([e2e/tests/02-token-tests.cy.ts](../cypress/e2e/tests/02-token-tests.cy.ts))
 
 Tests email verification and password reset token functionality:
 
@@ -90,7 +93,7 @@ describe('Token Testing', () => {
 })
 ```
 
-#### 3. Signup Journey (03-signup-journey.cy.ts)
+#### 3. Signup Journey ([e2e/tests/03-signup-journey.cy.ts](../cypress/e2e/tests/03-signup-journey.cy.ts))
 
 Tests the complete signup and email verification flow:
 
@@ -119,7 +122,7 @@ describe('Signup Journey', () => {
 })
 ```
 
-#### 4. Password Reset Journey (04-password-reset-journey.cy.ts)
+#### 4. Password Reset Journey ([e2e/tests/04-password-reset-journey.cy.ts](../cypress/e2e/tests/04-password-reset-journey.cy.ts))
 
 Tests the password reset workflow:
 
@@ -154,7 +157,7 @@ describe('Password Reset Journey', () => {
 })
 ```
 
-#### 5. Profile Journey (05-profile-journey.cy.ts)
+#### 5. Profile Journey ([e2e/tests/05-profile-journey.cy.ts](../cypress/e2e/tests/05-profile-journey.cy.ts))
 
 Tests profile management and updates:
 
@@ -180,7 +183,7 @@ describe('Profile Management Journey', () => {
 })
 ```
 
-#### 6. Ballot Journey (06-ballot-journey.cy.ts)
+#### 6. Ballot Journey ([e2e/tests/06-ballot-journey.cy.ts](../cypress/e2e/tests/06-ballot-journey.cy.ts))
 
 Tests ballot purchase and assignment:
 
@@ -211,7 +214,7 @@ describe('Ballot Journey', () => {
 })
 ```
 
-#### 7. Closed Draws Journey (07-closed-draws-journey.cy.ts)
+#### 7. Closed Draws Journey ([e2e/tests/07-closed-draws-journey.cy.ts](../cypress/e2e/tests/07-closed-draws-journey.cy.ts))
 
 Tests viewing closed draws and results:
 
@@ -359,13 +362,13 @@ Cypress generates detailed test reports:
 
 ```bash
 # Run single test with verbose output
-./run-tests.sh interactive
+./scripts/run-tests.sh interactive
 
 # Check test data in database
 docker compose exec backend python manage.py shell
 
 # View application logs
-./run-tests.sh logs
+./scripts/run-tests.sh logs
 ```
 
 ## 🔄 Continuous Integration
@@ -437,4 +440,4 @@ Planned improvements to the test suite:
 
 ---
 
-For questions or issues with testing, please refer to the `cypress/README.md` file or contact the development team. 
+For questions or issues with testing, please refer to the [`cypress/README.md`](../cypress/README.md) file or contact the development team. 

@@ -4,7 +4,7 @@ This document describes the dedicated test environment for the Lottery System, w
 
 ## 🏗️ Architecture
 
-The test environment uses a separate Docker Compose configuration (`compose.test.yaml`) with the following services:
+The test environment uses a separate Docker Compose configuration ([`compose.test.yaml`](../compose.test.yaml)) with the following services:
 
 - **web** (nginx) - Reverse proxy on port 8081
 - **frontend** (Next.js) - React frontend with test configuration
@@ -16,7 +16,7 @@ The test environment uses a separate Docker Compose configuration (`compose.test
 ### 1. Set up the test environment
 
 ```bash
-./run-tests.sh setup
+./scripts/run-tests.sh setup
 ```
 
 This command:
@@ -29,20 +29,20 @@ This command:
 
 ```bash
 # Run all tests
-./run-tests.sh all
+./scripts/run-tests.sh all
 
 # Run specific test suites
-./run-tests.sh user-journey
-./run-tests.sh api
+./scripts/run-tests.sh user-journey
+./scripts/run-tests.sh api
 
 # Interactive mode for debugging
-./run-tests.sh interactive
+./scripts/run-tests.sh interactive
 ```
 
 ### 3. Clean up
 
 ```bash
-./run-tests.sh clean
+./scripts/run-tests.sh clean
 ```
 
 ## 🔧 Test Environment Features
@@ -71,18 +71,18 @@ This command:
 ## 📁 Configuration Files
 
 ### Docker Compose
-- `compose.test.yaml` - Test-specific service configuration
+- [`compose.test.yaml`](../compose.test.yaml) - Test-specific service configuration
 - Separate port (8081) to avoid conflicts
 - Minimal service dependencies
 
 ### Django Settings
-- `backend/service/settings/test.py` - Test-specific Django settings
+- [`backend/service/settings/test.py`](../backend/service/settings/test.py) - Test-specific Django settings
 - SQLite database configuration
 - Eager Celery tasks
 - Console email backend
 
 ### Cypress Configuration
-- `cypress/cypress.config.ts` - Updated for test environment
+- [`cypress/cypress.config.ts`](../cypress/cypress.config.ts) - Updated for test environment
 - Base URL: `http://localhost:8081`
 - Optimized timeouts and settings
 
@@ -113,18 +113,18 @@ Each test run:
 ### Available Commands
 
 ```bash
-./run-tests.sh setup      # Set up test environment
-./run-tests.sh all        # Run all tests
-./run-tests.sh user-journey  # Run user journey tests
-./run-tests.sh api        # Run API tests
-./run-tests.sh interactive # Open Cypress UI
-./run-tests.sh clean      # Clean up environment
-./run-tests.sh logs       # View logs
-./run-tests.sh status     # Check container status
-./run-tests.sh restart    # Restart containers
-./run-tests.sh shell      # Open Django shell
-./run-tests.sh migrate    # Run migrations
-./run-tests.sh seed       # Seed test data
+./scripts/run-tests.sh setup      # Set up test environment
+./scripts/run-tests.sh all        # Run all tests
+./scripts/run-tests.sh user-journey  # Run user journey tests
+./scripts/run-tests.sh api        # Run API tests
+./scripts/run-tests.sh interactive # Open Cypress UI
+./scripts/run-tests.sh clean      # Clean up environment
+./scripts/run-tests.sh logs       # View logs
+./scripts/run-tests.sh status     # Check container status
+./scripts/run-tests.sh restart    # Restart containers
+./scripts/run-tests.sh shell      # Open Django shell
+./scripts/run-tests.sh migrate    # Run migrations
+./scripts/run-tests.sh seed       # Seed test data
 ```
 
 ### Environment Variables
@@ -162,27 +162,27 @@ CYPRESS_screenshotOnRunFailure=false
 2. **Container issues**
    ```bash
    # Check container status
-   ./run-tests.sh status
+   ./scripts/run-tests.sh status
    
    # View logs
-   ./run-tests.sh logs
+   ./scripts/run-tests.sh logs
    
    # Restart containers
-   ./run-tests.sh restart
+   ./scripts/run-tests.sh restart
    ```
 
 3. **Database issues**
    ```bash
    # Reset database
-   ./run-tests.sh clean
-   ./run-tests.sh setup
+   ./scripts/run-tests.sh clean
+   ./scripts/run-tests.sh setup
    ```
 
 ### Debug Commands
 
 ```bash
 # Open Django shell
-./run-tests.sh shell
+./scripts/run-tests.sh shell
 
 # Check database
 docker compose -f compose.test.yaml exec backend python manage.py dbshell
@@ -231,9 +231,9 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run Tests
         run: |
-          chmod +x run-tests.sh
-          ./run-tests.sh setup
-          ./run-tests.sh all
+          chmod +x scripts/run-tests.sh
+          ./scripts/run-tests.sh setup
+          ./scripts/run-tests.sh all
 ```
 
 ## 📈 Benefits
@@ -264,4 +264,4 @@ Planned improvements:
 
 ---
 
-For more information, see the main [TESTING.md](TESTING.md) file. 
+For more information, see the main [TESTING.md](./TESTING.md) file. 

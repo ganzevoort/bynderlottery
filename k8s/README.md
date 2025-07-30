@@ -99,7 +99,7 @@ kubectl apply -f k8s/services.yaml
 kubectl apply -f k8s/ingress.yaml
 
 # Or use Helm chart
-helm install lottery ./helm-chart \
+helm install lottery helm-chart \
   --namespace lottery \
   --values helm-chart/values.yaml
 ```
@@ -108,7 +108,7 @@ helm install lottery ./helm-chart \
 
 ### Environment Variables
 
-Create a `k8s/secrets.yaml` file with your production secrets:
+Create a [`k8s/secrets.yaml`](../k8s/secrets.yaml) file with your production secrets:
 
 ```yaml
 apiVersion: v1
@@ -126,7 +126,7 @@ data:
 
 ### Domain Configuration
 
-Update the ingress configuration in `k8s/ingress.yaml` with your domain name.
+Update the ingress configuration in [`k8s/ingress.yaml`](../k8s/ingress.yaml) with your domain name.
 
 ## Monitoring and Logging
 

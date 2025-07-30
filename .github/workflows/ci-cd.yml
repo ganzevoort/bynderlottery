@@ -129,6 +129,7 @@ jobs:
 
     - name: Configure kubectl
       run: |
+        mkdir -p ~/.kube
         echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
         chmod 600 ~/.kube/config
         echo "Kubeconfig created, testing connection..."

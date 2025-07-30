@@ -2,8 +2,6 @@
 
 set -e
 
-mkdir -p logs
-
 python checkdb.py
 ./manage.py migrate
 ./manage.py create_admin

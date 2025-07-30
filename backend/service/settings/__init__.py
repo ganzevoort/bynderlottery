@@ -56,6 +56,9 @@ CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_TRACK_STARTED = True
 
+# Celery Beat settings - use writable directory
+CELERY_BEAT_SCHEDULE_FILENAME = "/tmp/celerybeat-schedule"
+
 
 # Settings for production deployment
 if SITENAME:

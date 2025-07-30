@@ -148,7 +148,7 @@ jobs:
       run: |
         # Apply lottery namespace resources
         kubectl apply -f k8s/namespace.yaml
-        kubectl apply -f k8s/configmaps.yaml -f k8s/secrets.yaml -f k8s/deployments.yaml -f k8s/services.yaml -f k8s/ingress.yaml -f k8s/network-policies.yaml -f k8s/hpa.yaml -f k8s/backup-job.yaml -n lottery
+        kubectl apply -f k8s/configmaps.yaml -f k8s/deployments.yaml -f k8s/services.yaml -f k8s/ingress.yaml -f k8s/network-policies.yaml -f k8s/hpa.yaml -f k8s/backup-job.yaml -n lottery
         
         # Apply docker-registry namespace resources
         kubectl apply -f k8s/registry-deployment.yaml -n docker-registry

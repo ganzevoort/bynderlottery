@@ -123,6 +123,13 @@ spec:
     ports:
     - protocol: TCP
       port: 6379
+  # Allow SMTP for email sending
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+    ports:
+    - protocol: TCP
+      port: 587
   # Allow DNS resolution (kube-system namespace only)
   - to:
     - namespaceSelector:
@@ -166,6 +173,13 @@ spec:
     ports:
     - protocol: TCP
       port: 6379
+  # Allow SMTP for email sending
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+    ports:
+    - protocol: TCP
+      port: 587
   # Allow DNS resolution (kube-system namespace only)
   - to:
     - namespaceSelector:

@@ -153,7 +153,7 @@ class ResendVerificationView(APIView):
 
         try:
             user = User.objects.get(email=email)
-            if user.is_active:
+            if user.account.email_verified:
                 return Response(
                     {"error": "Account is already verified"},
                     status=status.HTTP_400_BAD_REQUEST,

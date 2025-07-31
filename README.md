@@ -12,6 +12,7 @@ The system is built with Django and consists of two main apps:
 ## 🚀 Features
 
 ### User Management
+
 - ✅ **Email-based authentication** (no usernames required)
 - ✅ **Account registration** with email verification
 - ✅ **Password reset** functionality
@@ -19,6 +20,7 @@ The system is built with Django and consists of two main apps:
 - ✅ **Session-based authentication**
 
 ### Lottery System
+
 - ✅ **Multiple draw types** (daily, weekly, special events)
 - ✅ **Prize management** with configurable amounts
 - ✅ **Ballot purchasing** (mock payment processing)
@@ -27,6 +29,7 @@ The system is built with Django and consists of two main apps:
 - ✅ **Draw scheduling** with automatic type detection
 
 ### API Endpoints
+
 - ✅ **RESTful API** for all functionality
 - ✅ **Public endpoints** for draw information
 - ✅ **Protected endpoints** for user operations
@@ -75,7 +78,7 @@ lottery/
 │   └── Dockerfile            # Container configuration
 │
 ├── scripts/                   # Utility scripts
-│   ├── run-tests.sh          # Main testing script
+│   ├── run-tests.sh          # Main testing script (runs all tests)
 │   ├── update-compose.py     # CI/CD compose file updater
 │   ├── setup-registry.sh     # Registry setup script
 │   └── dbdump.sh             # Database dump script
@@ -111,6 +114,7 @@ lottery/
 ### Accounts App
 
 #### Account Model
+
 ```python
 class Account(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -124,6 +128,7 @@ class Account(models.Model):
 ### Lottery App
 
 #### DrawType Model
+
 ```python
 class DrawType(OrderedModel):
     name = models.CharField(max_length=100)
@@ -132,6 +137,7 @@ class DrawType(OrderedModel):
 ```
 
 #### Prize Model
+
 ```python
 class Prize(models.Model):
     name = models.CharField(max_length=100)
@@ -141,6 +147,7 @@ class Prize(models.Model):
 ```
 
 #### Draw Model
+
 ```python
 class Draw(models.Model):
     drawtype = models.ForeignKey(DrawType, on_delete=models.PROTECT, related_name="draws")
@@ -149,6 +156,7 @@ class Draw(models.Model):
 ```
 
 #### Ballot Model
+
 ```python
 class Ballot(models.Model):
     draw = models.ForeignKey(Draw, null=True, blank=True, on_delete=models.PROTECT, related_name="ballots")
@@ -160,73 +168,82 @@ class Ballot(models.Model):
 
 ### Accounts API (`/api/accounts/`)
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/signup/` | User registration | No |
-| POST | `/signin/` | User authentication | No |
-| POST | `/signout/` | User logout | Yes |
-| GET | `/verify-email/{token}/` | Email verification | No |
-| POST | `/resend-verification/` | Resend verification email | No |
-| POST | `/forgot-password/` | Request password reset | No |
-| POST | `/reset-password/{token}/` | Reset password | No |
-| GET/PUT | `/profile/` | User profile management | Yes |
+| Method  | Endpoint                   | Description               | Auth Required |
+| ------- | -------------------------- | ------------------------- | ------------- |
+| POST    | `/signup/`                 | User registration         | No            |
+| POST    | `/signin/`                 | User authentication       | No            |
+| POST    | `/signout/`                | User logout               | Yes           |
+| GET     | `/verify-email/{token}/`   | Email verification        | No            |
+| POST    | `/resend-verification/`    | Resend verification email | No            |
+| POST    | `/forgot-password/`        | Request password reset    | No            |
+| POST    | `/reset-password/{token}/` | Reset password            | No            |
+| GET/PUT | `/profile/`                | User profile management   | Yes           |
 
 ### Lottery API (`/api/lottery/`)
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/draws/open/` | List open draws | No |
-| GET | `/draws/closed/` | List closed draws with winners | No |
-| GET | `/draws/{id}/` | Draw details | No |
-| GET | `/stats/` | Lottery statistics | No |
-| GET | `/my-ballots/` | User's ballot summary | Yes |
-| GET | `/my-winnings/` | User's winnings summary | Yes |
-| POST | `/purchase-ballots/` | Buy new ballots | Yes |
-| POST | `/ballots/{id}/assign/` | Assign ballot to draw | Yes |
-| GET | `/ballots/{id}/` | Ballot details | Yes |
+| Method | Endpoint                | Description                    | Auth Required |
+| ------ | ----------------------- | ------------------------------ | ------------- |
+| GET    | `/draws/open/`          | List open draws                | No            |
+| GET    | `/draws/closed/`        | List closed draws with winners | No            |
+| GET    | `/draws/{id}/`          | Draw details                   | No            |
+| GET    | `/stats/`               | Lottery statistics             | No            |
+| GET    | `/my-ballots/`          | User's ballot summary          | Yes           |
+| GET    | `/my-winnings/`         | User's winnings summary        | Yes           |
+| POST   | `/purchase-ballots/`    | Buy new ballots                | Yes           |
+| POST   | `/ballots/{id}/assign/` | Assign ballot to draw          | Yes           |
+| GET    | `/ballots/{id}/`        | Ballot details                 | Yes           |
 
 ## 🛠️ Setup and Installation
 
 ### Prerequisites
+
 - Docker and Docker Compose
 
 ### Quick Start
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd lottery
    ```
 
 2. **Build the containers**
-    ```
-    docker compose build
-    ```
+
+   ```
+   docker compose build
+   ```
 
 3. **Start the services**
+
    ```bash
    docker compose up -d
    ```
+
    When started, the backend container checks to see if the database is empty
    and automatically restores a dump if it is.
 
 4. **Access the application**
+
    - Web Interface: http://localhost:8000
    - Admin Interface: http://localhost:8000/admin
    - API Documentation: See [`backend/accounts/API.md`](backend/accounts/API.md) and [`backend/lottery/API.md`](backend/lottery/API.md)
 
 5. **Create test data**
-    A superuser will be automatically created (see environment).
-    Sample lottery data is available in a fixtures file:
+   A superuser will be automatically created (see environment).
+   Sample lottery data is available in a fixtures file:
    ```bash
    docker compose exec backend python manage.py loaddata initial
    ```
 
 ## 🔧 Configuration
+
 Settings that may need to be different per DTAP layer are set via environment variables:
 
 ### Environment Variables
+
 A sample `.env` file that can be used:
+
 ```bash
 COMPOSE_BAKE=true
 UID=501
@@ -253,11 +270,13 @@ EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
 ## 🧪 Testing
 
 ### Run All Tests
+
 ```bash
 docker compose exec backend python manage.py test
 ```
 
 ### Run Specific Test Suites
+
 ```bash
 # Accounts tests
 docker compose exec backend python manage.py test accounts.tests accounts.test_api
@@ -267,7 +286,9 @@ docker compose exec backend python manage.py test lottery.tests lottery.test_api
 ```
 
 ### Test Coverage
+
 The test suite includes:
+
 - ✅ **Model tests** - Database operations and relationships
 - ✅ **Form tests** - Validation and data processing
 - ✅ **View tests** - Traditional Django views
@@ -278,6 +299,7 @@ The test suite includes:
 ## 🔒 Security Features
 
 ### Authentication & Authorization
+
 - **Email-based login** - No usernames required
 - **Email verification** - Required before account activation
 - **Session authentication** - Secure session management
@@ -285,12 +307,14 @@ The test suite includes:
 - **Token expiration** - 24-hour expiration for security tokens
 
 ### Data Privacy
+
 - **User isolation** - Users can only access their own data
 - **Winner privacy** - Only names shown, no emails or IDs
 - **Secure messages** - Generic success messages don't reveal user existence
 - **Input validation** - Comprehensive validation on all inputs
 
 ### API Security
+
 - **Authentication required** - Protected endpoints require login
 - **Ownership validation** - Users can only modify their own resources
 - **Draw validation** - Cannot assign ballots to closed draws
@@ -299,16 +323,19 @@ The test suite includes:
 ## 📧 Email System
 
 ### Email Templates
+
 - **HTML and Text versions** - Compatible with all email clients
 - **Base template** - Consistent branding across all emails
 - **Customizable themes** - Different colors for different email types
 
 ### Email Types
+
 1. **Account Verification** - Welcome email with verification link
 2. **Password Reset** - Secure password reset with expiration
 3. **Winner Notification** - Prize notification with multiple prize support
 
 ### Celery Integration
+
 - **Asynchronous processing** - Email sending doesn't block requests
 - **Error handling** - Failed emails are logged but don't break the app
 - **Mock support** - Tests use mocked email sending
@@ -316,6 +343,7 @@ The test suite includes:
 ## 🎨 User Interface
 
 ### Design Features
+
 - **Bootstrap 5** - Modern, responsive design
 - **Custom logo** - Euro symbol on green circle
 - **Collapsible sections** - Better organization of ballot information
@@ -323,6 +351,7 @@ The test suite includes:
 - **Currency formatting** - Proper euro formatting with humanize
 
 ### Key Pages
+
 1. **Home** - Overview and navigation
 2. **Open Draws** - Available draws for ballot assignment
 3. **Closed Draws** - Past draws with winner information
@@ -330,6 +359,7 @@ The test suite includes:
 5. **Profile** - Account settings and information
 
 ### Settings Structure
+
 - **[`service/settings/defaults.py`](backend/service/settings/defaults.py)** - Django default settings
 - **[`service/settings/__init__.py`](backend/service/settings/__init__.py)** - Custom project settings
 - **[`service/settings/environment.py`](backend/service/settings/environment.py)** - Environment-specific settings
@@ -337,6 +367,7 @@ The test suite includes:
 ## 🚀 Deployment
 
 ### Production Considerations
+
 1. **Database** - Use PostgreSQL or MySQL
 2. **Email** - Configure SMTP or email service (SendGrid, Mailgun)
 3. **Static Files** - Use CDN or static file server
@@ -346,6 +377,7 @@ The test suite includes:
 7. **Backup** - Regular database backups
 
 ### Docker Production
+
 ```bash
 # Build production image
 docker build -t lottery:production .
@@ -359,6 +391,7 @@ docker run -e DJANGO_SETTINGS_MODULE=service.settings.production lottery:product
 ### Quick API Examples
 
 #### User Registration
+
 ```bash
 curl -X POST http://localhost:8000/api/accounts/signup/ \
   -H "Content-Type: application/json" \
@@ -371,6 +404,7 @@ curl -X POST http://localhost:8000/api/accounts/signup/ \
 ```
 
 #### Purchase Ballots
+
 ```bash
 curl -X POST http://localhost:8000/api/lottery/purchase-ballots/ \
   -H "Content-Type: application/json" \
@@ -385,6 +419,7 @@ curl -X POST http://localhost:8000/api/lottery/purchase-ballots/ \
 ```
 
 #### Get User Ballots
+
 ```bash
 curl -X GET http://localhost:8000/api/lottery/my-ballots/ \
   -H "Cookie: sessionid=your-session-id"
@@ -393,6 +428,7 @@ curl -X GET http://localhost:8000/api/lottery/my-ballots/ \
 ## 📚 Documentation
 
 ### Project Documentation
+
 All project documentation is organized in the `docs/` directory:
 
 - **[TEST_ENVIRONMENT.md](docs/TEST_ENVIRONMENT.md)** - Test environment setup and configuration
@@ -404,12 +440,14 @@ All project documentation is organized in the `docs/` directory:
 - **[TRANSIP_SETUP.md](docs/TRANSIP_SETUP.md)** - TransIP VPS setup guide
 
 ### API Documentation
+
 - **Accounts API**: See [`backend/accounts/API.md`](backend/accounts/API.md)
 - **Lottery API**: See [`backend/lottery/API.md`](backend/lottery/API.md)
 
 ## 🤝 Contributing
 
 ### Development Workflow
+
 1. **Fork the repository**
 2. **Create a feature branch**
 3. **Make your changes**
@@ -418,6 +456,7 @@ All project documentation is organized in the `docs/` directory:
 6. **Submit a pull request**
 
 ### Code Standards
+
 - **PEP 8** - Python code style
 - **Django best practices** - Follow Django conventions
 - **Type hints** - Use type annotations where helpful
@@ -429,21 +468,25 @@ All project documentation is organized in the `docs/` directory:
 ### Common Issues
 
 #### Email Not Sending
+
 - Check email backend configuration
 - Verify Celery is running (for async emails)
 - Check logs for error messages
 
 #### API Authentication Issues
+
 - Ensure session cookies are included in requests
 - Verify user is logged in for protected endpoints
 - Check CSRF token for POST requests
 
 #### Database Issues
+
 - Run migrations: `python manage.py migrate`
 - Check database connection settings
 - Verify model relationships
 
 ### Getting Help
+
 - **Documentation** - Check the API documentation files
 - **Tests** - Review test cases for usage examples
 - **Issues** - Create an issue with detailed information
@@ -452,46 +495,55 @@ All project documentation is organized in the `docs/` directory:
 ## 🚀 CI/CD Pipeline
 
 ### Automated Workflow
+
 The project uses GitHub Actions for continuous integration and deployment:
 
 #### **Pipeline Stages:**
+
 1. **Build** - Parallel backend and frontend image building
-2. **Test** - Full test suite execution with Docker
+2. **Test** - Parallel frontend, backend, and integration tests
 3. **Demo** - Automated demo video creation (main branch only)
 4. **Deploy** - Production deployment to Kubernetes (main branch only)
 
 #### **Key Features:**
+
 - **Parallel builds** - Backend and frontend build simultaneously
-- **Docker-based testing** - Consistent test environment
+- **Parallel testing** - Frontend, backend, and integration tests run simultaneously
+- **Production images for integration** - Integration tests use exact images that will be deployed
+- **Docker-based testing** - Consistent test environment using `test.env`
 - **Registry integration** - Private Docker registry for images
 - **Kubernetes deployment** - Automated production deployment
 - **Manual approval** - Deploy stage requires manual approval
 
 #### **Workflow Structure:**
+
 ```yaml
 build-backend ──┐
-                ├── test ──┐
-build-frontend ──┘         ├── demo
-                           └── deploy
+├── test-frontend ──┐
+build-frontend ──┘                  ├── demo
+├── test-backend ───┘
+└── test-integration ─┘
+└── deploy
 ```
 
 ### Local Development
+
 For local development and testing:
 
 ```bash
 # Run the full test suite
-./scripts/run-tests.sh full-test
+./scripts/run-tests.sh
 
-# Run specific test categories
-./scripts/run-tests.sh api
-./scripts/run-tests.sh user-journey
-
-# Interactive testing
-./scripts/run-tests.sh interactive
+# The script runs all tests automatically:
+# - Frontend linting and unit tests
+# - Backend unit tests and formatting checks
+# - Cypress E2E tests
 ```
 
 ### Production Deployment
+
 The application is deployed to a Kubernetes cluster with:
+
 - **PostgreSQL** database (Helm chart)
 - **Redis** for caching and Celery
 - **Nginx Ingress** for external access
@@ -501,6 +553,7 @@ The application is deployed to a Kubernetes cluster with:
 ## 🔮 Future Enhancements
 
 ### Planned Features
+
 - **Real-time notifications** - WebSocket support for live updates
 - **Mobile app** - React Native or Flutter mobile application
 - **Advanced analytics** - Detailed lottery statistics and trends
@@ -510,7 +563,8 @@ The application is deployed to a Kubernetes cluster with:
 - **Webhook support** - External system integrations
 
 ### Technical Improvements
+
 - **Caching** - Redis caching for improved performance
 - **Monitoring** - Application performance monitoring
 - **CI/CD** - Automated testing and deployment ✅
-- **Container orchestration** - Kubernetes deployment ✅ 
+- **Container orchestration** - Kubernetes deployment ✅

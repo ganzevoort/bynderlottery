@@ -27,6 +27,45 @@ class AccountSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "user", "email_verified", "created_at"]
 
 
+class ProfileSerializer(serializers.ModelSerializer):
+    """Serializer for user profile (combines User and Account data)"""
+
+    email = serializers.EmailField(source="user.email", read_only=True)
+    name = serializers.CharField(source="user.last_name", max_length=150)
+    bankaccount = serializers.CharField(
+        max_length=20, required=False, allow_blank=True
+    )
+    email_verified = serializers.BooleanField(read_only=True)
+    date_joined = serializers.DateTimeField(
+        source="user.date_joined", read_only=True
+    )
+
+    class Meta:
+        model = Account
+        fields = [
+            "id",
+            "email",
+            "name",
+            "bankaccount",
+            "email_verified",
+            "date_joined",
+        ]
+        read_only_fields = ["id", "email", "email_verified", "date_joined"]
+
+    def update(self, instance, validated_data):
+        # Update user name if provided
+        if "user" in validated_data and "last_name" in validated_data["user"]:
+            instance.user.last_name = validated_data["user"]["last_name"]
+            instance.user.save()
+
+        # Update account bankaccount if provided
+        if "bankaccount" in validated_data:
+            instance.bankaccount = validated_data["bankaccount"]
+
+        instance.save()
+        return instance
+
+
 class SignUpSerializer(serializers.Serializer):
     """Serializer for user signup"""
 

@@ -41,4 +41,4 @@ describe('Closed Draws Journey', () => {
         // Should redirect to signin page
         cy.url().should('include', '/auth/signin')
     });
-}); 
+});

@@ -5,17 +5,20 @@
 All Kubernetes configuration files have been updated with your specific settings from [`.env-k8s`](../.env-k8s):
 
 ### **Domain Configuration**
+
 - **Domain**: `bynderlottery.online`
 - **Site Name**: `bynderlottery.online`
 - **Admin Email**: `jobganzevoort@bynderlottery.online`
 - **From Email**: `noreply@bynderlottery.online`
 
 ### **Database Configuration**
+
 - **Database Name**: `myproject`
 - **Database User**: `janedoe`
 - **Database Password**: `rxgcrsabhfxtuiuk` (base64 encoded in secrets)
 
 ### **Email Configuration**
+
 - **SMTP Host**: `mail.candidmind.nl`
 - **SMTP Port**: `587`
 - **SMTP User**: `jobganzevoort@bynderlottery.online`
@@ -23,10 +26,12 @@ All Kubernetes configuration files have been updated with your specific settings
 - **TLS**: Enabled
 
 ### **Security**
+
 - **Django Secret Key**: `zgspvncphrkoeubvpxpduyqceapfznzcaarfhpbqpggrqajbkhlfeymtobfhiuan`
 - **Admin Password**: `avqhpolfkhkfjkdp` (base64 encoded in secrets)
 
 ### **Environment**
+
 - **Layer**: `production`
 - **Time Zone**: `Europe/Amsterdam`
 - **UID/GID**: `7328/5799`
@@ -69,16 +74,17 @@ Before deploying, update these files with your actual registry URL:
 - [`k8s/deployments.yaml`](../k8s/deployments.yaml) - Replace `your-registry` with your registry URL
 - [`helm-chart/values.yaml`](../helm-chart/values.yaml) - Replace `your-registry` with your registry URL
 
-
 ### 5. Deploy Application
 
 **Option A: GitHub Actions Deployment (Recommended)**
+
 ```bash
 # Push to main branch to trigger automatic deployment
 git push origin main
 ```
 
 **Option B: Manual Step-by-step**
+
 ```bash
 # Install dependencies
 ./k8s/deploy.sh deploy -d bynderlottery.online
@@ -90,6 +96,7 @@ kubectl get pods -n lottery
 ### 6. Configure DNS
 
 1. Get the LoadBalancer IP:
+
    ```bash
    kubectl get service ingress-nginx-controller -n ingress-nginx
    ```
@@ -117,6 +124,7 @@ kubectl logs -f deployment/lottery-backend -n lottery
 ## 📋 Files Updated
 
 ### Kubernetes Manifests
+
 - ✅ [`k8s/configmaps.yaml`](../k8s/configmaps.yaml) - Environment configuration
 - ✅ [`k8s/secrets.yaml`](../k8s/secrets.yaml) - Base64 encoded secrets
 - ✅ [`k8s/ingress.yaml`](../k8s/ingress.yaml) - Domain routing
@@ -125,10 +133,12 @@ kubectl logs -f deployment/lottery-backend -n lottery
 - ✅ [`k8s/hpa.yaml`](../k8s/hpa.yaml) - Auto-scaling configuration
 
 ### Helm Chart
+
 - ✅ [`helm-chart/values.yaml`](../helm-chart/values.yaml) - Chart configuration
 - ✅ [`helm-chart/templates/`](../helm-chart/templates/) - All template files
 
 ### Deployment Scripts
+
 - ✅ [`k8s/deploy.sh`](../k8s/deploy.sh) - Step-by-step deployment
 - ✅ [`k8s/monitoring.yaml`](../k8s/monitoring.yaml) - Monitoring setup
 
@@ -137,6 +147,7 @@ kubectl logs -f deployment/lottery-backend -n lottery
 Before deployment, you need to:
 
 1. **Update Registry URL**: Replace `your-registry` with your actual TransIP registry URL in:
+
    - [`k8s/deployments.yaml`](../k8s/deployments.yaml)
    - [`helm-chart/values.yaml`](../helm-chart/values.yaml)
 
@@ -147,6 +158,7 @@ Before deployment, you need to:
 ## 🎯 Expected Result
 
 After deployment, your application will be available at:
+
 - **Main Site**: https://bynderlottery.online
 - **Admin Panel**: https://bynderlottery.online/admin
 - **API**: https://bynderlottery.online/api
@@ -157,12 +169,14 @@ After deployment, your application will be available at:
 ### Common Issues
 
 1. **Image Pull Errors**
+
    ```bash
    # Check if images exist
    docker pull registry.transip.nl/your-username/lottery-backend:latest
    ```
 
 2. **Database Connection**
+
    ```bash
    # Check PostgreSQL pod
    kubectl get pods -n lottery -l app=postgresql
@@ -199,4 +213,4 @@ kubectl scale deployment lottery-backend --replicas=3 -n lottery
 - **Application Logs**: Check pod logs for application issues
 - **Monitoring**: Use Grafana dashboards for performance monitoring
 
-Your lottery application is now ready for deployment on TransIP Kubernetes! 🎉 
+Your lottery application is now ready for deployment on TransIP Kubernetes! 🎉

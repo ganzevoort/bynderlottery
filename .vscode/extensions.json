@@ -1,0 +1,11 @@
+{
+    "recommendations": [
+        "esbenp.prettier-vscode",
+        "ms-python.black-formatter",
+        "ms-python.flake8",
+        "ms-python.python",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-typescript-next",
+        "dbaeumer.vscode-eslint"
+    ]
+}

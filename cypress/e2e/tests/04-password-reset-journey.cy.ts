@@ -53,4 +53,4 @@ describe('Password Reset Journey', () => {
         cy.visit('/my-ballots')
         cy.url().should('include', '/my-ballots')
     });
-}); 
+});

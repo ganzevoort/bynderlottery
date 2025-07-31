@@ -20,4 +20,4 @@ if 'frontend' in data['services']:
 
 # Write the updated compose file
 with open('compose.test.yaml', 'w') as f:
-    yaml.dump(data, f, default_flow_style=False) 
+    yaml.dump(data, f, default_flow_style=False)

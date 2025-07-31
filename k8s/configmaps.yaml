@@ -18,11 +18,11 @@ data:
   EMAIL_USE_TLS: "True"
   EMAIL_HOST_USER: "candidmind@vps.transip.email"
   SITENAME: "bynderlottery.online"
-  
+
   # Redis configuration
   REDIS_HOST: "redis-master"
   REDIS_PORT: "6379"
-  
+
   # Frontend configuration
   NEXT_PUBLIC_API_URL: "https://bynderlottery.online/api"
-  NODE_ENV: "production" 
+  NODE_ENV: "production"

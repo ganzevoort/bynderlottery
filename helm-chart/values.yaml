@@ -106,11 +106,11 @@ config:
   EMAIL_USE_TLS: "True"
   EMAIL_HOST_USER: "jobganzevoort@bynderlottery.online"
   SITENAME: "bynderlottery.online"
-  
+
   # Redis configuration
   REDIS_HOST: "redis"
   REDIS_PORT: "6379"
-  
+
   # Frontend configuration
   NEXT_PUBLIC_API_URL: "https://bynderlottery.online/api"
   NODE_ENV: "production"
@@ -121,4 +121,4 @@ secrets:
   DATABASE_PASSWORD: "rxgcrsabhfxtuiuk"
   EMAIL_HOST_PASSWORD: "eznqklgvsqcythnf"
   ADMIN_EMAIL: "jobganzevoort@bynderlottery.online"
-  ADMIN_PASSWORD: "avqhpolfkhkfjkdp" 
+  ADMIN_PASSWORD: "avqhpolfkhkfjkdp"

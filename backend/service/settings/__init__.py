@@ -23,6 +23,7 @@ INSTALLED_APPS += [
     "lottery",
     "django.contrib.humanize",
     "rest_framework",
+    "drf_spectacular",
 ]
 
 LOGIN_URL = "accounts:signin"
@@ -43,6 +44,17 @@ REST_FRAMEWORK = {
     "DEFAULT_PARSER_CLASSES": [
         "rest_framework.parsers.JSONParser",
     ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+# drf-spectacular settings
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Lottery API",
+    "DESCRIPTION": "API for the lottery application",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SCHEMA_PATH_PREFIX": "/api/",
 }
 
 

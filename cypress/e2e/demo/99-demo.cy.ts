@@ -180,4 +180,4 @@ describe('Lottery System - Complete User Journey Demo', () => {
 
         cy.log('=== Complete User Journey Demo Finished Successfully ===')
     });
-}); 
+});

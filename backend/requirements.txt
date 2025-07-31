@@ -1,22 +1,23 @@
 # Core
-Django
+Django                  # 62M
 gunicorn
 psycopg
-requests
+requests                # 5M
 whitenoise
 
 # API
-djangorestframework
+djangorestframework     # 5M
+drf-spectacular         # 8M
 
 # Lottery
 django-ordered-model
 
 # Tasks
-celery
+celery                  # 17M
 redis
 
 # Development
-ipdb
+ipdb                    # 29M
 pipdeptree
 flake8
 flake8-pyproject

@@ -1,9 +1,8 @@
 services:
-
   web:
     image: nginx
     ports:
-      - '127.0.0.1:8080:80'
+      - "127.0.0.1:8080:80"
     volumes:
       - ./nginx/templates:/etc/nginx/templates:ro
     depends_on:
@@ -22,6 +21,11 @@ services:
       - ./frontend/next.config.ts:/code/next.config.ts
       - ./frontend/next-env.d.ts:/code/next-env.d.ts
       - ./frontend/postcss.config.mjs:/code/postcss.config.mjs
+      - ./frontend/eslint.config.js:/code/eslint.config.js
+      - ./frontend/.prettierrc:/code/.prettierrc
+      - ./frontend/.prettierignore:/code/.prettierignore
+      - ./frontend/jest.config.js:/code/jest.config.js
+      - ./frontend/jest.setup.js:/code/jest.setup.js
       - ./frontend/public:/code/public
       - ./frontend/README.md:/code/README.md
       - ./frontend/src:/code/src
@@ -63,9 +67,9 @@ services:
     # backend container can read.
     image: postgres:15
     environment:
-      - POSTGRES_DB=${DATABASE_NAME}
-      - POSTGRES_USER=${DATABASE_USER}
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB:-${DATABASE_NAME}}
+      - POSTGRES_USER=${POSTGRES_USER:-${DATABASE_USER}}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-${DATABASE_PASSWORD}}
 
   redis:
     image: redis

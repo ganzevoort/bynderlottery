@@ -195,4 +195,4 @@ spec:
             - secretRef:
                 name: {{ include "lottery.fullname" . }}-secrets
           resources:
-            {{- toYaml .Values.resources.celeryBeat | nindent 12 }} 
+            {{- toYaml .Values.resources.celeryBeat | nindent 12 }}

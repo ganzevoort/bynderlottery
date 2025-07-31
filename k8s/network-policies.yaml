@@ -9,46 +9,46 @@ spec:
     matchLabels:
       app: lottery-backend
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
   ingress:
-  # Allow ingress from ingress-nginx controller only
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: ingress-nginx
-    ports:
-    - protocol: TCP
-      port: 8000
+    # Allow ingress from ingress-nginx controller only
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8000
   egress:
-  # Allow egress to database (specific port)
-  - to:
-    - podSelector:
-        matchLabels:
-          app.kubernetes.io/name: postgresql
-          app.kubernetes.io/component: primary
-    ports:
-    - protocol: TCP
-      port: 5432
-  # Allow egress to Redis (specific port)
-  - to:
-    - podSelector:
-        matchLabels:
-          app.kubernetes.io/name: redis
-          app.kubernetes.io/component: master
-    ports:
-    - protocol: TCP
-      port: 6379
-  # Allow DNS resolution (kube-system namespace only)
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: kube-system
-    ports:
-    - protocol: UDP
-      port: 53
-    - protocol: TCP
-      port: 53
+    # Allow egress to database (specific port)
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgresql
+              app.kubernetes.io/component: primary
+      ports:
+        - protocol: TCP
+          port: 5432
+    # Allow egress to Redis (specific port)
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: redis
+              app.kubernetes.io/component: master
+      ports:
+        - protocol: TCP
+          port: 6379
+    # Allow DNS resolution (kube-system namespace only)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -61,36 +61,36 @@ spec:
     matchLabels:
       app: lottery-frontend
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
   ingress:
-  # Allow ingress from ingress-nginx controller only
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: ingress-nginx
-    ports:
-    - protocol: TCP
-      port: 3000
+    # Allow ingress from ingress-nginx controller only
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
   egress:
-  # Allow egress to backend API (specific port)
-  - to:
-    - podSelector:
-        matchLabels:
-          app: lottery-backend
-    ports:
-    - protocol: TCP
-      port: 8000
-  # Allow DNS resolution (kube-system namespace only)
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: kube-system
-    ports:
-    - protocol: UDP
-      port: 53
-    - protocol: TCP
-      port: 53
+    # Allow egress to backend API (specific port)
+    - to:
+        - podSelector:
+            matchLabels:
+              app: lottery-backend
+      ports:
+        - protocol: TCP
+          port: 8000
+    # Allow DNS resolution (kube-system namespace only)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -103,43 +103,43 @@ spec:
     matchLabels:
       app: lottery-celery-worker
   policyTypes:
-  - Egress
+    - Egress
   egress:
-  # Allow egress to database (specific port)
-  - to:
-    - podSelector:
-        matchLabels:
-          app.kubernetes.io/name: postgresql
-          app.kubernetes.io/component: primary
-    ports:
-    - protocol: TCP
-      port: 5432
-  # Allow egress to Redis (specific port)
-  - to:
-    - podSelector:
-        matchLabels:
-          app.kubernetes.io/name: redis
-          app.kubernetes.io/component: master
-    ports:
-    - protocol: TCP
-      port: 6379
-  # Allow SMTP for email sending
-  - to:
-    - ipBlock:
-        cidr: 0.0.0.0/0
-    ports:
-    - protocol: TCP
-      port: 587
-  # Allow DNS resolution (kube-system namespace only)
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: kube-system
-    ports:
-    - protocol: UDP
-      port: 53
-    - protocol: TCP
-      port: 53
+    # Allow egress to database (specific port)
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgresql
+              app.kubernetes.io/component: primary
+      ports:
+        - protocol: TCP
+          port: 5432
+    # Allow egress to Redis (specific port)
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: redis
+              app.kubernetes.io/component: master
+      ports:
+        - protocol: TCP
+          port: 6379
+    # Allow SMTP for email sending
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 587
+    # Allow DNS resolution (kube-system namespace only)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
 
 ---
 # Network policy for Celery Beat (separate from worker)
@@ -153,40 +153,40 @@ spec:
     matchLabels:
       app: lottery-celery-beat
   policyTypes:
-  - Egress
+    - Egress
   egress:
-  # Allow egress to database (specific port)
-  - to:
-    - podSelector:
-        matchLabels:
-          app.kubernetes.io/name: postgresql
-          app.kubernetes.io/component: primary
-    ports:
-    - protocol: TCP
-      port: 5432
-  # Allow egress to Redis (specific port)
-  - to:
-    - podSelector:
-        matchLabels:
-          app.kubernetes.io/name: redis
-          app.kubernetes.io/component: master
-    ports:
-    - protocol: TCP
-      port: 6379
-  # Allow SMTP for email sending
-  - to:
-    - ipBlock:
-        cidr: 0.0.0.0/0
-    ports:
-    - protocol: TCP
-      port: 587
-  # Allow DNS resolution (kube-system namespace only)
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: kube-system
-    ports:
-    - protocol: UDP
-      port: 53
-    - protocol: TCP
-      port: 53 
+    # Allow egress to database (specific port)
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgresql
+              app.kubernetes.io/component: primary
+      ports:
+        - protocol: TCP
+          port: 5432
+    # Allow egress to Redis (specific port)
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: redis
+              app.kubernetes.io/component: master
+      ports:
+        - protocol: TCP
+          port: 6379
+    # Allow SMTP for email sending
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 587
+    # Allow DNS resolution (kube-system namespace only)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

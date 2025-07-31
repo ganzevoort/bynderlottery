@@ -2,24 +2,56 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.contrib.auth import login, logout
-from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
-from datetime import timedelta
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiParameter,
+    OpenApiExample,
+)
+from drf_spectacular.types import OpenApiTypes
 
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.utils import timezone
+
+from .models import Account
 from .serializers import (
     SignUpSerializer,
     SignInSerializer,
     ForgotPasswordSerializer,
     ResetPasswordSerializer,
-    ProfileUpdateSerializer,
-    AccountSerializer,
+    ProfileSerializer,
 )
-from .models import Account
 from .tasks import send_verification_email, send_password_reset_email
 
 
+@extend_schema(
+    tags=["Authentication"],
+    summary="User Registration",
+    description="Register a new user account",
+    request=SignUpSerializer,
+    responses={
+        201: {
+            "description": "User created successfully",
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": (
+                        "Account created successfully. "
+                        "Please check your email to verify your account."
+                    ),
+                }
+            },
+        },
+        400: {
+            "description": "Bad request",
+            "type": "object",
+            "properties": {
+                "error": {"type": "string", "example": "Email already exists"}
+            },
+        },
+    },
+)
 class SignUpView(APIView):
     """API endpoint for user signup"""
 
@@ -42,8 +74,7 @@ class SignUpView(APIView):
                     "message": (
                         "Account created successfully. "
                         "Please check your email to verify your account."
-                    ),
-                    "user_id": user.id,
+                    )
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -51,6 +82,31 @@ class SignUpView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(
+    tags=["Authentication"],
+    summary="User Login",
+    description="Authenticate and login a user",
+    request=SignInSerializer,
+    responses={
+        200: {
+            "description": "Login successful",
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Successfully signed in!",
+                }
+            },
+        },
+        400: {
+            "description": "Bad request",
+            "type": "object",
+            "properties": {
+                "error": {"type": "string", "example": "Invalid credentials"}
+            },
+        },
+    },
+)
 class SignInView(APIView):
     """API endpoint for user signin"""
 
@@ -59,24 +115,43 @@ class SignInView(APIView):
     def post(self, request):
         serializer = SignInSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.validated_data["user"]
-            login(request, user)
-
-            return Response(
-                {
-                    "message": "Successfully signed in",
-                    "user": {
-                        "id": user.id,
-                        "email": user.email,
-                        "name": user.last_name,
-                    },
-                },
-                status=status.HTTP_200_OK,
+            user = authenticate(
+                username=serializer.validated_data["email"],
+                password=serializer.validated_data["password"],
             )
+
+            if user and user.is_active:
+                login(request, user)
+                return Response(
+                    {"message": "Successfully signed in!"},
+                    status=status.HTTP_200_OK,
+                )
+            else:
+                return Response(
+                    {"error": "Invalid credentials"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(
+    tags=["Authentication"],
+    summary="User Logout",
+    description="Logout the current user",
+    responses={
+        200: {
+            "description": "Logout successful",
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Successfully signed out!",
+                }
+            },
+        }
+    },
+)
 class SignOutView(APIView):
     """API endpoint for user signout"""
 
@@ -85,10 +160,55 @@ class SignOutView(APIView):
     def post(self, request):
         logout(request)
         return Response(
-            {"message": "Successfully signed out"}, status=status.HTTP_200_OK
+            {"message": "Successfully signed out!"},
+            status=status.HTTP_200_OK,
         )
 
 
+@extend_schema(
+    tags=["Authentication"],
+    summary="Email Verification",
+    description="Verify user email with token",
+    parameters=[
+        OpenApiParameter(
+            name="token",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.PATH,
+            description="Email verification token",
+            examples=[
+                OpenApiExample(
+                    "Verification Token",
+                    value="abc123def456",
+                    description="Email verification token",
+                )
+            ],
+        )
+    ],
+    responses={
+        200: {
+            "description": "Email verified successfully",
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": (
+                        "Email verified successfully. You can now sign in."
+                    ),
+                }
+            },
+        },
+        400: {
+            "description": "Bad request",
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Invalid verification link.",
+                }
+            },
+        },
+    },
+)
 class VerifyEmailView(APIView):
     """API endpoint for email verification"""
 
@@ -99,18 +219,6 @@ class VerifyEmailView(APIView):
             account = Account.objects.get(
                 email_verification_token=token, email_verified=False
             )
-
-            # Check if token is expired (24 hours)
-            if account.created_at < timezone.now() - timedelta(hours=24):
-                return Response(
-                    {
-                        "error": (
-                            "Verification link has expired. "
-                            "Please request a new one."
-                        )
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
 
             # Verify email
             account.email_verified = True
@@ -125,7 +233,7 @@ class VerifyEmailView(APIView):
             return Response(
                 {
                     "message": (
-                        "Email verified successfully. " "You can now sign in."
+                        "Email verified successfully. You can now sign in."
                     )
                 },
                 status=status.HTTP_200_OK,
@@ -138,6 +246,46 @@ class VerifyEmailView(APIView):
             )
 
 
+@extend_schema(
+    tags=["Authentication"],
+    summary="Resend Verification Email",
+    description="Request a new verification email to be sent",
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com",
+                }
+            },
+            "required": ["email"],
+        }
+    },
+    responses={
+        200: {
+            "description": "Verification email sent",
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": (
+                        "If an account with that email exists, "
+                        "a verification email has been sent."
+                    ),
+                }
+            },
+        },
+        400: {
+            "description": "Bad request",
+            "type": "object",
+            "properties": {
+                "error": {"type": "string", "example": "Email is required"}
+            },
+        },
+    },
+)
 class ResendVerificationView(APIView):
     """API endpoint for resending verification email"""
 
@@ -189,6 +337,34 @@ class ResendVerificationView(APIView):
             )
 
 
+@extend_schema(
+    tags=["Authentication"],
+    summary="Forgot Password",
+    description="Request a password reset email",
+    request=ForgotPasswordSerializer,
+    responses={
+        200: {
+            "description": "Password reset email sent",
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": (
+                        "If an account with that email exists, "
+                        "a password reset email has been sent."
+                    ),
+                }
+            },
+        },
+        400: {
+            "description": "Bad request",
+            "type": "object",
+            "properties": {
+                "error": {"type": "string", "example": "Email is required"}
+            },
+        },
+    },
+)
 class ForgotPasswordView(APIView):
     """API endpoint for forgot password"""
 
@@ -219,6 +395,46 @@ class ForgotPasswordView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(
+    tags=["Authentication"],
+    summary="Reset Password",
+    description="Reset password using token",
+    parameters=[
+        OpenApiParameter(
+            name="token",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.PATH,
+            description="Password reset token",
+            examples=[
+                OpenApiExample(
+                    "Reset Token",
+                    value="abc123def456",
+                    description="Password reset token",
+                )
+            ],
+        )
+    ],
+    request=ResetPasswordSerializer,
+    responses={
+        200: {
+            "description": "Password reset successful",
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Password reset successfully.",
+                }
+            },
+        },
+        400: {
+            "description": "Bad request",
+            "type": "object",
+            "properties": {
+                "error": {"type": "string", "example": "Invalid reset token."}
+            },
+        },
+    },
+)
 class ResetPasswordView(APIView):
     """API endpoint for password reset"""
 
@@ -244,44 +460,64 @@ class ResetPasswordView(APIView):
                 account.save()
 
                 return Response(
-                    {
-                        "message": (
-                            "Password reset successfully. "
-                            "You can now sign in with your new password."
-                        )
-                    },
+                    {"message": "Password reset successfully."},
                     status=status.HTTP_200_OK,
                 )
 
             except Account.DoesNotExist:
                 return Response(
-                    {"error": "Invalid or expired reset link."},
+                    {"error": "Invalid reset token."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(
+    tags=["User Profile"],
+    summary="Get User Profile",
+    description="Get the current user's profile information",
+    responses={
+        200: ProfileSerializer,
+        401: {
+            "description": "Unauthorized",
+            "type": "object",
+            "properties": {
+                "detail": {
+                    "type": "string",
+                    "example": "Authentication credentials were not provided.",
+                }
+            },
+        },
+    },
+)
 class ProfileView(APIView):
     """API endpoint for user profile"""
 
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        """Get current user's profile"""
-        account = get_object_or_404(Account, user=request.user)
-        serializer = AccountSerializer(account)
+        serializer = ProfileSerializer(request.user.account)
         return Response(serializer.data)
 
+    @extend_schema(
+        request=ProfileSerializer,
+        responses={
+            200: ProfileSerializer,
+            400: {
+                "description": "Bad request",
+                "type": "object",
+                "properties": {
+                    "error": {"type": "string", "example": "Invalid data"}
+                },
+            },
+        },
+    )
     def put(self, request):
-        """Update current user's profile"""
-        account = get_object_or_404(Account, user=request.user)
-        serializer = ProfileUpdateSerializer(data=request.data)
-
+        serializer = ProfileSerializer(
+            request.user.account, data=request.data, partial=True
+        )
         if serializer.is_valid():
-            serializer.update(account, serializer.validated_data)
-            # Return updated profile
-            account_serializer = AccountSerializer(account)
-            return Response(account_serializer.data)
-
+            serializer.save()
+            return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

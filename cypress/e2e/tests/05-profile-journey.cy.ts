@@ -46,4 +46,4 @@ describe('Profile Management Journey', () => {
         // Should redirect to signin page
         cy.url().should('include', '/auth/signin')
     });
-}); 
+});

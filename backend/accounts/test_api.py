@@ -33,7 +33,6 @@ class AccountsAPITestCase(TestCase):
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn("message", response.data)
-        self.assertIn("user_id", response.data)
 
         # Check user was created
         user = User.objects.get(email="new@example.com")
@@ -85,8 +84,6 @@ class AccountsAPITestCase(TestCase):
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("message", response.data)
-        self.assertIn("user", response.data)
-        self.assertEqual(response.data["user"]["email"], "test@example.com")
 
     def test_signin_api_invalid_credentials(self):
         """Test signin with invalid credentials"""
@@ -127,8 +124,9 @@ class AccountsAPITestCase(TestCase):
         url = reverse("accounts_api:profile")
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("user", response.data)
-        self.assertEqual(response.data["user"]["email"], "test@example.com")
+        self.assertIn("email", response.data)
+        self.assertEqual(response.data["email"], "test@example.com")
+        self.assertEqual(response.data["name"], "Test User")
 
     def test_profile_api_update(self):
         """Test updating user profile via API"""

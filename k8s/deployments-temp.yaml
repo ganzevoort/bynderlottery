@@ -16,34 +16,34 @@ spec:
         app: lottery-backend
     spec:
       containers:
-      - name: lottery-backend
-        image: nginx:alpine
-        ports:
-        - containerPort: 80
-        envFrom:
-        - configMapRef:
-            name: lottery-config
-        - secretRef:
-            name: lottery-secrets
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 5
-          periodSeconds: 5
+        - name: lottery-backend
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: lottery-config
+            - secretRef:
+                name: lottery-secrets
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
 
 ---
 apiVersion: apps/v1
@@ -64,29 +64,29 @@ spec:
         app: lottery-frontend
     spec:
       containers:
-      - name: lottery-frontend
-        image: nginx:alpine
-        ports:
-        - containerPort: 80
-        envFrom:
-        - configMapRef:
-            name: lottery-config
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 5
-          periodSeconds: 5 
+        - name: lottery-frontend
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: lottery-config
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5

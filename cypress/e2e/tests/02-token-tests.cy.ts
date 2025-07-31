@@ -65,6 +65,7 @@ describe('Token Testing', () => {
         cy.get('input[name="password2"]').type(testUser.password)
         cy.get('button[type="submit"]').click()
 
+	cy.wait(1000)
         // Get tokens multiple times to ensure they're generated
         cy.getTestTokens(testUser.email).then((firstResponse) => {
             expect(firstResponse.status).to.eq(200)

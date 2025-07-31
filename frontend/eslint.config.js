@@ -1,10 +1,10 @@
 module.exports = [
   {
-    files: ["**/*.{js,jsx,ts,tsx}"],
+    files: ['**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
-      ecmaVersion: "latest",
-      sourceType: "module",
-      parser: require("@typescript-eslint/parser"),
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      parser: require('@typescript-eslint/parser'),
       parserOptions: {
         ecmaFeatures: {
           jsx: true,
@@ -12,19 +12,19 @@ module.exports = [
       },
     },
     plugins: {
-      "@typescript-eslint": require("@typescript-eslint/eslint-plugin"),
+      '@typescript-eslint': require('@typescript-eslint/eslint-plugin'),
     },
     rules: {
-      quotes: ["error", "single"],
+      quotes: ['error', 'single'],
     },
   },
   {
     ignores: [
-      "**/__tests__/**",
-      "**/*.test.ts",
-      "**/*.test.tsx",
-      "**/*.spec.ts",
-      "**/*.spec.tsx",
+      '**/__tests__/**',
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/*.spec.ts',
+      '**/*.spec.tsx',
     ],
   },
 ];

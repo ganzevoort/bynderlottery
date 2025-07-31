@@ -1,24 +1,10 @@
 # Core
-Django                  # 62M
-gunicorn
-psycopg
-requests                # 5M
-whitenoise
-
-# API
-djangorestframework     # 5M
-drf-spectacular         # 8M
-
-# Lottery
+Django
 django-ordered-model
-
-# Tasks
-celery                  # 17M
+djangorestframework
+drf-spectacular
+whitenoise
+gunicorn
+psycopg[binary]
+celery
 redis
-
-# Development
-ipdb                    # 29M
-pipdeptree
-flake8
-flake8-pyproject
-black

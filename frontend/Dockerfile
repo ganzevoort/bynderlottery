@@ -4,10 +4,17 @@ WORKDIR /code
 COPY --link yarn.lock package.json ./
 RUN yarn install --frozen-lockfile
 
+# Run linters and unittests
+FROM base AS tester
+COPY --link ./ ./
+RUN yarn lint
+RUN yarn eslint
+RUN yarn test
+
 FROM base AS builder
 COPY --link ./ ./
-# envs, args, secrets
 RUN yarn build
+CMD ["/bin/true"]
 
 # Production stage
 FROM node:18-alpine AS production

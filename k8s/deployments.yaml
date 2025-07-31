@@ -19,7 +19,7 @@ spec:
         - name: registry-secret
       containers:
         - name: lottery-backend
-          image: registry.bynderlottery.online/lottery-backend:latest
+          image: ghcr.io/ganzevoort/bynderlottery/backend:latest
           ports:
             - containerPort: 8000
           envFrom:
@@ -79,7 +79,7 @@ spec:
         - name: registry-secret
       containers:
         - name: lottery-frontend
-          image: registry.bynderlottery.online/lottery-frontend:latest
+          image: ghcr.io/ganzevoort/bynderlottery/frontend:latest
           ports:
             - containerPort: 3000
           envFrom:
@@ -127,7 +127,7 @@ spec:
         - name: registry-secret
       containers:
         - name: lottery-celery-worker
-          image: registry.bynderlottery.online/lottery-backend:latest
+          image: ghcr.io/ganzevoort/bynderlottery/backend:latest
           command:
             [
               "celery",
@@ -173,7 +173,7 @@ spec:
         - name: registry-secret
       containers:
         - name: lottery-celery-beat
-          image: registry.bynderlottery.online/lottery-backend:latest
+          image: ghcr.io/ganzevoort/bynderlottery/backend:latest
           command:
             [
               "celery",

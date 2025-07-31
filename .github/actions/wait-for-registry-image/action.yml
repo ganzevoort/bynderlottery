@@ -1,0 +1,80 @@
+name: "Wait for Registry Image"
+description: "Wait for a Docker image to exist in the registry, with optional commit age checking"
+
+inputs:
+  image:
+    description: "Full image name (e.g., ghcr.io/user/repo:tag)"
+    required: true
+  commit-sha:
+    description: "Commit SHA to check age against (optional)"
+    required: false
+  max-age-minutes:
+    description: "Maximum commit age in minutes before proceeding immediately (default: 15)"
+    required: false
+    default: "15"
+  max-wait-minutes:
+    description: "Maximum time to wait for image in minutes (default: 15)"
+    required: false
+    default: "15"
+  delay-after-wait-seconds:
+    description: "Delay after wait in seconds (default: 10)"
+    required: false
+    default: "10"
+  wait-interval-seconds:
+    description: "Wait interval in seconds (default: 30)"
+    required: false
+    default: "30"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Wait for registry image
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        # If commit SHA is provided, check commit age
+        if [ -n "${{ inputs.commit-sha }}" ]; then
+          echo "Checking commit push time..."
+          COMMIT_TIME=$(gh api repos/${{ github.repository }}/commits/${{ inputs.commit-sha }} \
+            --jq '.commit.committer.date' | tr -d '"')
+          COMMIT_EPOCH=$(date -d "$COMMIT_TIME" +%s)
+          CURRENT_EPOCH=$(date +%s)
+          COMMIT_AGE=$((CURRENT_EPOCH - COMMIT_EPOCH))
+          MAX_AGE_MINUTES=${{ inputs.max-age-minutes }}
+          MAX_AGE=$((MAX_AGE_MINUTES * 60))
+
+          echo "Commit age: ${COMMIT_AGE} seconds (max: ${MAX_AGE} seconds)"
+
+          # If commit is older than max age, proceed immediately
+          if [ $COMMIT_AGE -gt $MAX_AGE ]; then
+            echo "Commit is older than $MAX_AGE_MINUTES minutes, proceeding immediately"
+            exit 0
+          fi
+
+          echo "Commit is recent"
+        else
+          echo "No commit SHA provided"
+        fi
+
+        echo "Registry image is probably being built in other pipeline..."
+
+        # Wait for image to be available
+        echo "Waiting for registry image ${{ inputs.image }}... (checking every ${{ inputs.wait-interval-seconds }} seconds)"
+        while true; do
+          if docker manifest inspect ${{ inputs.image }}; then
+            echo "Registry image is available"
+            sleep ${{ inputs.delay-after-wait-seconds }}
+            exit 0
+          fi
+
+          CURRENT_EPOCH=$(date +%s)
+          COMMIT_AGE=$((CURRENT_EPOCH - COMMIT_EPOCH))
+
+          if [ $COMMIT_AGE -ge $MAX_AGE ]; then
+            echo "Timeout reached ({{ inputs.max-wait-minutes }} minutes after commit)"
+            exit 0
+          fi
+
+          sleep ${{ inputs.wait-interval-seconds }}
+        done

@@ -1,23 +1,11 @@
 # Core
-Django
-gunicorn
-psycopg
-requests
-whitenoise
 
-# API
-djangorestframework
-
-# Lottery
+django
 django-ordered-model
-
-# Tasks
+djangorestframework
+drf-spectacular
+whitenoise
+gunicorn
+psycopg[binary]
 celery
 redis
-
-# Development
-ipdb
-pipdeptree
-flake8
-flake8-pyproject
-black

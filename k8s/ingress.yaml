@@ -14,46 +14,46 @@ metadata:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   tls:
-  - hosts:
-    - bynderlottery.online
-    secretName: lottery-tls
+    - hosts:
+        - bynderlottery.online
+      secretName: lottery-tls
   rules:
-  - host: bynderlottery.online
-    http:
-      paths:
-      - path: /api
-        pathType: Prefix
-        backend:
-          service:
-            name: lottery-backend
-            port:
-              number: 8000
-      - path: /admin
-        pathType: Prefix
-        backend:
-          service:
-            name: lottery-backend
-            port:
-              number: 8000
-      - path: /static
-        pathType: Prefix
-        backend:
-          service:
-            name: lottery-backend
-            port:
-              number: 8000
-      - path: /_next
-        pathType: Prefix
-        backend:
-          service:
-            name: lottery-frontend
-            port:
-              number: 3000
+    - host: bynderlottery.online
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: lottery-backend
+                port:
+                  number: 8000
+          - path: /admin
+            pathType: Prefix
+            backend:
+              service:
+                name: lottery-backend
+                port:
+                  number: 8000
+          - path: /static
+            pathType: Prefix
+            backend:
+              service:
+                name: lottery-backend
+                port:
+                  number: 8000
+          - path: /_next
+            pathType: Prefix
+            backend:
+              service:
+                name: lottery-frontend
+                port:
+                  number: 3000
 
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: lottery-frontend
-            port:
-              number: 3000 
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: lottery-frontend
+                port:
+                  number: 3000

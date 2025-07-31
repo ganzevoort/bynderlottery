@@ -1,0 +1,70 @@
+repos:
+  # Backend Python checks using Docker
+  - repo: local
+    hooks:
+      - id: backend-black
+        name: Backend Black Formatting
+        entry: docker compose exec -T backend black --check --diff .
+        language: system
+        files: ^backend/.*\.py$
+        pass_filenames: false
+
+      - id: backend-flake8
+        name: Backend Flake8 Linting
+        entry: docker compose exec -T backend flake8 .
+        language: system
+        files: ^backend/.*\.py$
+        pass_filenames: false
+
+  # Frontend JavaScript/TypeScript checks using Docker
+  - repo: local
+    hooks:
+      - id: frontend-lint
+        name: Frontend ESLint
+        entry: docker compose exec -T frontend yarn lint
+        language: system
+        files: ^frontend/.*\.(js|jsx|ts|tsx)$
+        pass_filenames: false
+
+      - id: frontend-test
+        name: Frontend Unit Tests
+        entry: docker compose exec -T frontend yarn test --passWithNoTests
+        language: system
+        files: ^frontend/.*\.(js|jsx|ts|tsx)$
+        pass_filenames: false
+
+      - id: frontend-prettier
+        name: Frontend Prettier
+        entry: docker compose exec -T frontend yarn prettier --write
+        language: system
+        files: ^frontend/.*\.(js|jsx|ts|tsx|json|css|md)$
+        pass_filenames: false
+
+  # General file checks (these can run locally)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        exclude: (?x)^(helm-chart|k8s)/.*\.yaml$
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: debug-statements
+
+  # YAML formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.0
+    hooks:
+      - id: prettier
+        files: \.(yaml|yml)$
+        exclude: (?x)^(helm-chart|k8s)/.*\.yaml$
+        args: [--write]
+
+  # Markdown formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.0
+    hooks:
+      - id: prettier
+        files: \.md$
+        args: [--write]

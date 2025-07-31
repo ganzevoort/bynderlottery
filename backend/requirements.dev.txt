@@ -1,0 +1,7 @@
+# Development
+
+ipdb
+pipdeptree
+flake8
+flake8-pyproject
+black

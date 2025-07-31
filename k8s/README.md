@@ -5,6 +5,7 @@ This directory contains all the necessary Kubernetes manifests and Helm charts t
 ## Architecture
 
 The application consists of:
+
 - **Nginx Ingress Controller**: Routes traffic to frontend and backend
 - **Frontend (Next.js)**: React application
 - **Backend (Django)**: API and admin interface
@@ -221,4 +222,4 @@ kubectl set image deployment/lottery-backend lottery-backend=your-registry/lotte
 
 # Rollback if needed
 kubectl rollout undo deployment/lottery-backend -n lottery
-``` 
+```

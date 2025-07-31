@@ -7,38 +7,41 @@ This directory contains comprehensive integration tests for the Lottery System u
 ### Running Tests
 
 1. **Start the application:**
+
    ```bash
    docker compose up -d
    ```
 
 2. **Run all tests:**
+
    ```bash
    docker compose run cypress
    ```
 
 3. **Run specific test suites:**
+
    ```bash
    # API tests
    docker compose run cypress cypress run --spec 'e2e/tests/01-api-tests.cy.ts'
-   
+
    # Token tests
    docker compose run cypress cypress run --spec 'e2e/tests/02-token-tests.cy.ts'
-   
+
    # Signup journey
    docker compose run cypress cypress run --spec 'e2e/tests/03-signup-journey.cy.ts'
-   
+
    # Password reset journey
    docker compose run cypress cypress run --spec 'e2e/tests/04-password-reset-journey.cy.ts'
-   
+
    # Profile journey
    docker compose run cypress cypress run --spec 'e2e/tests/05-profile-journey.cy.ts'
-   
+
    # Ballot journey
    docker compose run cypress cypress run --spec 'e2e/tests/06-ballot-journey.cy.ts'
-   
+
    # Closed draws journey
    docker compose run cypress cypress run --spec 'e2e/tests/07-closed-draws-journey.cy.ts'
-   
+
    # Complete demo journey
    docker compose run cypress cypress run --spec 'e2e/demo/99-demo.cy.ts'
    ```
@@ -77,11 +80,13 @@ cypress/
 Tests all backend API endpoints:
 
 1. **Authentication APIs**
+
    - User registration
    - User signin
    - Profile management
 
 2. **Lottery APIs**
+
    - Statistics retrieval
    - Open draws listing
    - Closed draws with winners
@@ -98,6 +103,7 @@ Tests all backend API endpoints:
 Tests email verification and password reset token functionality:
 
 1. **Token Retrieval**
+
    - Get email verification tokens
    - Get password reset tokens
    - Handle non-existent users gracefully
@@ -111,6 +117,7 @@ Tests email verification and password reset token functionality:
 Tests the complete signup and email verification flow:
 
 1. **User Registration**
+
    - Sign up with valid credentials
    - Form validation (empty fields, password mismatch)
    - Success message verification
@@ -125,6 +132,7 @@ Tests the complete signup and email verification flow:
 Tests the password reset workflow:
 
 1. **Password Reset Request**
+
    - Request password reset via API
    - Retrieve reset token
    - Change password with token
@@ -138,6 +146,7 @@ Tests the password reset workflow:
 Tests profile management and updates:
 
 1. **Profile Updates**
+
    - Update user profile information
    - Bank account management
    - Form validation
@@ -151,6 +160,7 @@ Tests profile management and updates:
 Tests ballot purchase and assignment:
 
 1. **Ballot Purchase**
+
    - Purchase ballots with payment simulation
    - Form validation
    - Success confirmation
@@ -165,6 +175,7 @@ Tests ballot purchase and assignment:
 Tests viewing closed draws and results:
 
 1. **Draw Results**
+
    - View closed draws
    - Check for winners
    - Verify draw information
@@ -179,6 +190,7 @@ Tests viewing closed draws and results:
 Comprehensive demo test that showcases the complete user journey for product owners:
 
 1. **Complete User Flow**
+
    - User signup and email verification
    - Password reset workflow
    - Profile management
@@ -197,20 +209,20 @@ The following custom commands are available in tests:
 
 ```typescript
 // User management
-cy.signUp(email, password, name)
-cy.signIn(email, password)
-cy.signOut()
+cy.signUp(email, password, name);
+cy.signIn(email, password);
+cy.signOut();
 
 // Ballot operations
-cy.buyBallots(quantity)
-cy.assignBallot(drawId)
+cy.buyBallots(quantity);
+cy.assignBallot(drawId);
 
 // Test utilities
-cy.clearDatabase()
-cy.seedTestData()
-cy.waitForApi()
-cy.isAuthenticated()
-cy.getTestTokens(email)
+cy.clearDatabase();
+cy.seedTestData();
+cy.waitForApi();
+cy.isAuthenticated();
+cy.getTestTokens(email);
 ```
 
 ## 🔧 Configuration
@@ -251,10 +263,12 @@ Cypress generates detailed test reports including:
 ### Common Issues
 
 1. **Tests failing due to timing:**
+
    - Increase `defaultCommandTimeout` in [`cypress.config.ts`](./cypress.config.ts)
    - Add explicit waits for API responses
 
 2. **Database state issues:**
+
    - Ensure `clearDatabase()` is called in `beforeEach`
    - Check that test data is properly seeded
 
@@ -316,4 +330,4 @@ To extend the test suite:
 2. Test mobile responsiveness
 3. Add performance tests
 4. Test email functionality
-5. Add accessibility tests 
+5. Add accessibility tests

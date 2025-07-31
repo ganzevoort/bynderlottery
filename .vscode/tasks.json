@@ -1,0 +1,107 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Format Frontend (Prettier)",
+            "type": "shell",
+            "command": "docker",
+            "args": [
+                "compose",
+                "exec",
+                "-T",
+                "frontend",
+                "sh",
+                "-c",
+                "yarn prettier --write \"/code/${relativeFile#frontend/}\""
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Format Backend (Black)",
+            "type": "shell",
+            "command": "docker",
+            "args": [
+                "compose",
+                "exec",
+                "-T",
+                "backend",
+                "bash",
+                "-c",
+                "black \"/code/${relativeFile#backend/}\""
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Lint Frontend (ESLint)",
+            "type": "shell",
+            "command": "docker",
+            "args": [
+                "compose",
+                "exec",
+                "-T",
+                "frontend",
+                "yarn",
+                "lint",
+                "--fix"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Lint Backend (Flake8)",
+            "type": "shell",
+            "command": "docker",
+            "args": [
+                "compose",
+                "exec",
+                "-T",
+                "backend",
+                "bash",
+                "-c",
+                "flake8 \"/code/${relativeFile#backend/}\""
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Test Task",
+            "type": "shell",
+            "command": "echo",
+            "args": ["Hello from task"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "new"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

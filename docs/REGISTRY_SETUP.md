@@ -5,6 +5,7 @@ Based on the [TransIP documentation](https://www.transip.nl/knowledgebase/7078-e
 ## 🐳 **Registry Configuration**
 
 ### **Registry Details**
+
 - **Domain**: `registry.bynderlottery.online`
 - **Username**: `lottery`
 - **Password**: `lottery-secure-password-2024`
@@ -13,6 +14,7 @@ Based on the [TransIP documentation](https://www.transip.nl/knowledgebase/7078-e
 ## 🚀 **Quick Setup**
 
 ### **Option 1: Automated Setup**
+
 ```bash
 # Run the setup script
 ./scripts/setup-registry.sh lottery lottery-secure-password-2024
@@ -21,6 +23,7 @@ Based on the [TransIP documentation](https://www.transip.nl/knowledgebase/7078-e
 ### **Option 2: Manual Setup**
 
 #### **Step 1: Generate Authentication**
+
 ```bash
 # Generate password file
 htpasswd -nB lottery | tee registry.htpasswd
@@ -28,6 +31,7 @@ htpasswd -nB lottery | tee registry.htpasswd
 ```
 
 #### **Step 2: Create Namespace and Secret**
+
 ```bash
 # Create namespace
 kubectl create namespace docker-registry
@@ -39,12 +43,14 @@ kubectl create secret generic registry-auth-secret \
 ```
 
 #### **Step 3: Deploy Registry**
+
 ```bash
 # Deploy the registry
 kubectl apply -f k8s/registry-deployment.yaml
 ```
 
 #### **Step 4: Wait for Deployment**
+
 ```bash
 # Wait for registry to be ready
 kubectl wait --for=condition=available --timeout=300s deployment/docker-registry-deployment -n docker-registry
@@ -53,12 +59,15 @@ kubectl wait --for=condition=available --timeout=300s deployment/docker-registry
 ## 📋 **DNS Configuration**
 
 ### **Get External IP**
+
 ```bash
 kubectl get service ingress-nginx-controller -n ingress-nginx
 ```
 
 ### **Add DNS Record**
+
 Create an A record in your DNS settings:
+
 - **Name**: `registry`
 - **Value**: External IP from above
 - **TTL**: 300 seconds
@@ -66,6 +75,7 @@ Create an A record in your DNS settings:
 ## 🔐 **Authentication**
 
 ### **Login to Registry**
+
 ```bash
 # Login to your registry
 docker login registry.bynderlottery.online
@@ -75,6 +85,7 @@ docker login registry.bynderlottery.online
 ```
 
 ### **Test Registry**
+
 ```bash
 # Test with a simple image
 docker pull hello-world
@@ -85,6 +96,7 @@ docker push registry.bynderlottery.online/hello-world
 ## 🏗️ **Build and Push Images**
 
 ### **Build Images**
+
 ```bash
 # Build backend image
 docker build -t registry.bynderlottery.online/lottery-backend:latest backend/
@@ -94,6 +106,7 @@ docker build -t registry.bynderlottery.online/lottery-frontend:latest frontend/
 ```
 
 ### **Push Images**
+
 ```bash
 # Push images to registry
 docker push registry.bynderlottery.online/lottery-backend:latest
@@ -103,6 +116,7 @@ docker push registry.bynderlottery.online/lottery-frontend:latest
 ## 📊 **Monitor Registry**
 
 ### **Check Status**
+
 ```bash
 # Check registry pods
 kubectl get pods -n docker-registry
@@ -118,6 +132,7 @@ kubectl get certificates -n docker-registry
 ```
 
 ### **View Logs**
+
 ```bash
 # View registry logs
 kubectl logs -f deployment/docker-registry-deployment -n docker-registry
@@ -128,10 +143,11 @@ kubectl logs -f deployment/docker-registry-deployment -n docker-registry
 ### **Common Issues**
 
 1. **Authentication Failed**
+
    ```bash
    # Check secret
    kubectl get secret registry-auth-secret -n docker-registry
-   
+
    # Recreate secret if needed
    kubectl delete secret registry-auth-secret -n docker-registry
    kubectl create secret generic registry-auth-secret \
@@ -140,6 +156,7 @@ kubectl logs -f deployment/docker-registry-deployment -n docker-registry
    ```
 
 2. **SSL Certificate Issues**
+
    ```bash
    # Check certificate status
    kubectl get certificates -n docker-registry
@@ -171,4 +188,4 @@ After setting up the registry:
 
 - [TransIP Docker Registry Documentation](https://www.transip.nl/knowledgebase/7078-een-docker-registry-deployen-kubernetes)
 - [Docker Registry Documentation](https://docs.docker.com/registry/)
-- [NGINX Ingress Basic Auth](https://kubernetes.github.io/ingress-nginx/examples/auth/basic/) 
+- [NGINX Ingress Basic Auth](https://kubernetes.github.io/ingress-nginx/examples/auth/basic/)

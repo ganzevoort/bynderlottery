@@ -9,38 +9,29 @@ The Lottery System includes multiple layers of testing:
 1. **Unit Tests** - Django backend tests
 2. **Integration Tests** - Cypress end-to-end tests
 3. **API Tests** - Backend API endpoint validation
-4. **Frontend Tests** - Next.js component tests (future)
+4. **Frontend Tests** - Next.js component tests with Jest and React Testing Library
 
 ## 🚀 Cypress Integration Tests
 
 ### Quick Start
 
 ```bash
-# Set up test environment
-./scripts/run-tests.sh setup
-
 # Run all tests
-./scripts/run-tests.sh all
-
-# Run specific test suites
-./scripts/run-tests.sh api
-./scripts/run-tests.sh token-tests
-./scripts/run-tests.sh signup-journey
-./scripts/run-tests.sh password-reset-journey
-./scripts/run-tests.sh profile-journey
-./scripts/run-tests.sh ballot-journey
-./scripts/run-tests.sh closed-draws-journey
-./scripts/run-tests.sh user-journey
-
-# Interactive mode
-./scripts/run-tests.sh interactive
+./scripts/run-tests.sh
 ```
+
+The script automatically runs:
+
+1. **Frontend Tests** (linting + unit tests)
+2. **Backend Tests** (unit tests + formatting checks)
+3. **E2E Tests** (Cypress integration tests)
 
 ### Test Structure
 
 The Cypress tests are organized in logical directories:
 
 #### Functional Tests ([`e2e/tests/`](../cypress/e2e/tests/))
+
 1. **[01-api-tests.cy.ts](../cypress/e2e/tests/01-api-tests.cy.ts)** - API endpoint validation
 2. **[02-token-tests.cy.ts](../cypress/e2e/tests/02-token-tests.cy.ts)** - Email verification and password reset tokens
 3. **[03-signup-journey.cy.ts](../cypress/e2e/tests/03-signup-journey.cy.ts)** - Complete signup and email verification flow
@@ -50,6 +41,7 @@ The Cypress tests are organized in logical directories:
 7. **[07-closed-draws-journey.cy.ts](../cypress/e2e/tests/07-closed-draws-journey.cy.ts)** - Viewing closed draws and results
 
 #### Demo Tests ([`e2e/demo/`](../cypress/e2e/demo/))
+
 - **[99-demo.cy.ts](../cypress/e2e/demo/99-demo.cy.ts)** - Complete demo journey for product owner
 
 ### Test Scenarios
@@ -59,22 +51,22 @@ The Cypress tests are organized in logical directories:
 Tests all backend API endpoints:
 
 ```typescript
-describe('API Endpoints', () => {
-  it('Should handle user registration via API', () => {
+describe("API Endpoints", () => {
+  it("Should handle user registration via API", () => {
     const userData = {
       email: `api-test-${Date.now()}@example.com`,
-      password1: 'TestPassword123!',
-      password2: 'TestPassword123!',
-      name: 'API Test User'
-    }
+      password1: "TestPassword123!",
+      password2: "TestPassword123!",
+      name: "API Test User",
+    };
 
-    cy.request('POST', '/api/accounts/signup/', userData).then((response) => {
-      expect(response.status).to.eq(201)
-      expect(response.body).to.have.property('message')
-      expect(response.body).to.have.property('user_id')
-    })
-  })
-})
+    cy.request("POST", "/api/accounts/signup/", userData).then((response) => {
+      expect(response.status).to.eq(201);
+      expect(response.body).to.have.property("message");
+      expect(response.body).to.have.property("user_id");
+    });
+  });
+});
 ```
 
 #### 2. Token Tests ([e2e/tests/02-token-tests.cy.ts](../cypress/e2e/tests/02-token-tests.cy.ts))
@@ -82,15 +74,15 @@ describe('API Endpoints', () => {
 Tests email verification and password reset token functionality:
 
 ```typescript
-describe('Token Testing', () => {
-  it('Should get email verification and password reset tokens for testing', () => {
+describe("Token Testing", () => {
+  it("Should get email verification and password reset tokens for testing", () => {
     // Test token retrieval for testing email-dependent flows
-    cy.getTestTokens('testuser1@example.com').then((tokens) => {
-      expect(tokens.email_verification_token).to.be.a('string')
-      expect(tokens.password_reset_token).to.be.a('string')
-    })
-  })
-})
+    cy.getTestTokens("testuser1@example.com").then((tokens) => {
+      expect(tokens.email_verification_token).to.be.a("string");
+      expect(tokens.password_reset_token).to.be.a("string");
+    });
+  });
+});
 ```
 
 #### 3. Signup Journey ([e2e/tests/03-signup-journey.cy.ts](../cypress/e2e/tests/03-signup-journey.cy.ts))
@@ -98,28 +90,28 @@ describe('Token Testing', () => {
 Tests the complete signup and email verification flow:
 
 ```typescript
-describe('Signup Journey', () => {
-  it('Complete signup journey: signup, verify email, signin', () => {
+describe("Signup Journey", () => {
+  it("Complete signup journey: signup, verify email, signin", () => {
     // 1. Sign up new user
-    cy.visit('/auth/signup')
-    cy.get('input[id="name"]').type('Test User')
-    cy.get('input[id="email"]').type('newuser@example.com')
-    cy.get('input[id="password1"]').type('password123')
-    cy.get('input[id="password2"]').type('password123')
-    cy.get('button[type="submit"]').click()
-    
+    cy.visit("/auth/signup");
+    cy.get('input[id="name"]').type("Test User");
+    cy.get('input[id="email"]').type("newuser@example.com");
+    cy.get('input[id="password1"]').type("password123");
+    cy.get('input[id="password2"]').type("password123");
+    cy.get('button[type="submit"]').click();
+
     // 2. Verify email
-    cy.getTestTokens('newuser@example.com').then((tokens) => {
-      cy.visit(`/auth/verify-email/${tokens.email_verification_token}`)
-    })
-    
+    cy.getTestTokens("newuser@example.com").then((tokens) => {
+      cy.visit(`/auth/verify-email/${tokens.email_verification_token}`);
+    });
+
     // 3. Sign in
-    cy.visit('/auth/signin')
-    cy.get('input[id="email"]').type('newuser@example.com')
-    cy.get('input[id="password"]').type('password123')
-    cy.get('button[type="submit"]').click()
-  })
-})
+    cy.visit("/auth/signin");
+    cy.get('input[id="email"]').type("newuser@example.com");
+    cy.get('input[id="password"]').type("password123");
+    cy.get('button[type="submit"]').click();
+  });
+});
 ```
 
 #### 4. Password Reset Journey ([e2e/tests/04-password-reset-journey.cy.ts](../cypress/e2e/tests/04-password-reset-journey.cy.ts))
@@ -127,34 +119,34 @@ describe('Signup Journey', () => {
 Tests the password reset workflow:
 
 ```typescript
-describe('Password Reset Journey', () => {
-  it('Complete password reset journey: forgot password, get tokens, change password, signin', () => {
+describe("Password Reset Journey", () => {
+  it("Complete password reset journey: forgot password, get tokens, change password, signin", () => {
     // 1. Sign in with existing user
-    cy.visit('/auth/signin')
-    cy.get('input[id="email"]').type('testuser1@example.com')
-    cy.get('input[id="password"]').type('testpass123')
-    cy.get('button[type="submit"]').click()
-    
+    cy.visit("/auth/signin");
+    cy.get('input[id="email"]').type("testuser1@example.com");
+    cy.get('input[id="password"]').type("testpass123");
+    cy.get('button[type="submit"]').click();
+
     // 2. Request password reset
-    cy.request('POST', '/api/accounts/forgot-password/', {
-      email: 'testuser1@example.com'
-    })
-    
+    cy.request("POST", "/api/accounts/forgot-password/", {
+      email: "testuser1@example.com",
+    });
+
     // 3. Get reset token and change password
-    cy.getTestTokens('testuser1@example.com').then((tokens) => {
-      cy.visit(`/auth/reset-password/${tokens.password_reset_token}`)
-      cy.get('input[id="password1"]').type('newpassword123')
-      cy.get('input[id="password2"]').type('newpassword123')
-      cy.get('button[type="submit"]').click()
-    })
-    
+    cy.getTestTokens("testuser1@example.com").then((tokens) => {
+      cy.visit(`/auth/reset-password/${tokens.password_reset_token}`);
+      cy.get('input[id="password1"]').type("newpassword123");
+      cy.get('input[id="password2"]').type("newpassword123");
+      cy.get('button[type="submit"]').click();
+    });
+
     // 4. Sign in with new password
-    cy.visit('/auth/signin')
-    cy.get('input[id="email"]').type('testuser1@example.com')
-    cy.get('input[id="password"]').type('newpassword123')
-    cy.get('button[type="submit"]').click()
-  })
-})
+    cy.visit("/auth/signin");
+    cy.get('input[id="email"]').type("testuser1@example.com");
+    cy.get('input[id="password"]').type("newpassword123");
+    cy.get('button[type="submit"]').click();
+  });
+});
 ```
 
 #### 5. Profile Journey ([e2e/tests/05-profile-journey.cy.ts](../cypress/e2e/tests/05-profile-journey.cy.ts))
@@ -162,25 +154,25 @@ describe('Password Reset Journey', () => {
 Tests profile management and updates:
 
 ```typescript
-describe('Profile Management Journey', () => {
-  it('Complete profile journey: signin, update profile, change bank account', () => {
+describe("Profile Management Journey", () => {
+  it("Complete profile journey: signin, update profile, change bank account", () => {
     // 1. Sign in with existing user
-    cy.visit('/auth/signin')
-    cy.get('input[id="email"]').type('testuser1@example.com')
-    cy.get('input[id="password"]').type('testpass123')
-    cy.get('button[type="submit"]').click()
-    
+    cy.visit("/auth/signin");
+    cy.get('input[id="email"]').type("testuser1@example.com");
+    cy.get('input[id="password"]').type("testpass123");
+    cy.get('button[type="submit"]').click();
+
     // 2. Update profile
-    cy.visit('/profile')
-    cy.get('input[id="bankaccount"]').clear().type('NL91ABNA0417164300')
-    cy.get('button[type="submit"]').click()
-    
+    cy.visit("/profile");
+    cy.get('input[id="bankaccount"]').clear().type("NL91ABNA0417164300");
+    cy.get('button[type="submit"]').click();
+
     // 3. Sign out
-    cy.get('[data-testid="user-menu"]').click()
-    cy.get('[data-testid="sign-out"]').click()
-    cy.url().should('include', '/auth/signin')
-  })
-})
+    cy.get('[data-testid="user-menu"]').click();
+    cy.get('[data-testid="sign-out"]').click();
+    cy.url().should("include", "/auth/signin");
+  });
+});
 ```
 
 #### 6. Ballot Journey ([e2e/tests/06-ballot-journey.cy.ts](../cypress/e2e/tests/06-ballot-journey.cy.ts))
@@ -188,30 +180,30 @@ describe('Profile Management Journey', () => {
 Tests ballot purchase and assignment:
 
 ```typescript
-describe('Ballot Journey', () => {
-  it('Complete ballot journey: signin, buy ballots', () => {
+describe("Ballot Journey", () => {
+  it("Complete ballot journey: signin, buy ballots", () => {
     // 1. Sign in with existing user
-    cy.visit('/auth/signin')
-    cy.get('input[id="email"]').type('testuser1@example.com')
-    cy.get('input[id="password"]').type('testpass123')
-    cy.get('button[type="submit"]').click()
-    
+    cy.visit("/auth/signin");
+    cy.get('input[id="email"]').type("testuser1@example.com");
+    cy.get('input[id="password"]').type("testpass123");
+    cy.get('button[type="submit"]').click();
+
     // 2. Buy ballots
-    cy.visit('/my-ballots')
-    cy.contains('Purchase New Ballots').click()
-    cy.get('input[name="quantity"]').type('3')
-    cy.get('input[name="card_number"]').type('1234567890123456')
-    cy.get('input[name="expiry_month"]').type('12')
-    cy.get('input[name="expiry_year"]').type('2025')
-    cy.get('input[name="cvv"]').type('123')
-    cy.get('button[type="submit"]').click()
-    
+    cy.visit("/my-ballots");
+    cy.contains("Purchase New Ballots").click();
+    cy.get('input[name="quantity"]').type("3");
+    cy.get('input[name="card_number"]').type("1234567890123456");
+    cy.get('input[name="expiry_month"]').type("12");
+    cy.get('input[name="expiry_year"]').type("2025");
+    cy.get('input[name="cvv"]').type("123");
+    cy.get('button[type="submit"]').click();
+
     // 3. Sign out
-    cy.get('[data-testid="user-menu"]').click()
-    cy.get('[data-testid="sign-out"]').click()
-    cy.url().should('include', '/auth/signin')
-  })
-})
+    cy.get('[data-testid="user-menu"]').click();
+    cy.get('[data-testid="sign-out"]').click();
+    cy.url().should("include", "/auth/signin");
+  });
+});
 ```
 
 #### 7. Closed Draws Journey ([e2e/tests/07-closed-draws-journey.cy.ts](../cypress/e2e/tests/07-closed-draws-journey.cy.ts))
@@ -219,24 +211,24 @@ describe('Ballot Journey', () => {
 Tests viewing closed draws and results:
 
 ```typescript
-describe('Closed Draws Journey', () => {
-  it('Complete closed draws journey: signin, view closed draws', () => {
+describe("Closed Draws Journey", () => {
+  it("Complete closed draws journey: signin, view closed draws", () => {
     // 1. Sign in with existing user
-    cy.visit('/auth/signin')
-    cy.get('input[id="email"]').type('testuser1@example.com')
-    cy.get('input[id="password"]').type('testpass123')
-    cy.get('button[type="submit"]').click()
-    
+    cy.visit("/auth/signin");
+    cy.get('input[id="email"]').type("testuser1@example.com");
+    cy.get('input[id="password"]').type("testpass123");
+    cy.get('button[type="submit"]').click();
+
     // 2. View closed draws
-    cy.visit('/draws/closed')
-    cy.get('[data-testid="closed-draw"]').should('have.length.at.least', 1)
-    
+    cy.visit("/draws/closed");
+    cy.get('[data-testid="closed-draw"]').should("have.length.at.least", 1);
+
     // 3. Sign out
-    cy.get('[data-testid="user-menu"]').click()
-    cy.get('[data-testid="sign-out"]').click()
-    cy.url().should('include', '/auth/signin')
-  })
-})
+    cy.get('[data-testid="user-menu"]').click();
+    cy.get('[data-testid="sign-out"]').click();
+    cy.url().should("include", "/auth/signin");
+  });
+});
 ```
 
 #### 8. User Journey Overview (08-user-journey.cy.ts)
@@ -244,14 +236,14 @@ describe('Closed Draws Journey', () => {
 Overview test that verifies all user journeys are working:
 
 ```typescript
-describe('Lottery User Journeys', () => {
-  it('Should have all user journeys working', () => {
+describe("Lottery User Journeys", () => {
+  it("Should have all user journeys working", () => {
     // This test verifies that all user journeys are properly configured
     // and the test environment is working correctly
-    cy.visit('/')
-    cy.get('body').should('contain', 'Lottery System')
-  })
-})
+    cy.visit("/");
+    cy.get("body").should("contain", "Lottery System");
+  });
+});
 ```
 
 ### Custom Commands
@@ -260,19 +252,19 @@ The test suite includes custom Cypress commands for common operations:
 
 ```typescript
 // User management
-cy.signUp(email, password, name)
-cy.signIn(email, password)
-cy.signOut()
+cy.signUp(email, password, name);
+cy.signIn(email, password);
+cy.signOut();
 
 // Ballot operations
-cy.buyBallots(quantity)
-cy.assignBallot(drawId)
+cy.buyBallots(quantity);
+cy.assignBallot(drawId);
 
 // Test utilities
-cy.clearDatabase()
-cy.seedTestData()
-cy.waitForApi()
-cy.isAuthenticated()
+cy.clearDatabase();
+cy.seedTestData();
+cy.waitForApi();
+cy.isAuthenticated();
 ```
 
 ## 🔧 Test Configuration
@@ -318,6 +310,7 @@ docker compose exec backend python manage.py seed_test_data
 ```
 
 This creates:
+
 - Test users with accounts
 - Open and closed draws
 - Prizes for each draw type
@@ -337,6 +330,7 @@ Cypress generates detailed test reports:
 ### Common Issues
 
 1. **Timing Issues**
+
    ```bash
    # Increase timeouts in cypress.config.ts
    defaultCommandTimeout: 15000,
@@ -344,16 +338,18 @@ Cypress generates detailed test reports:
    ```
 
 2. **Database State Issues**
+
    ```bash
    # Clear and reseed database
    docker compose exec backend python manage.py seed_test_data
    ```
 
 3. **Container Issues**
+
    ```bash
    # Check container status
    docker compose ps
-   
+
    # View logs
    docker compose logs cypress
    ```
@@ -361,14 +357,11 @@ Cypress generates detailed test reports:
 ### Debug Commands
 
 ```bash
-# Run single test with verbose output
-./scripts/run-tests.sh interactive
-
 # Check test data in database
 docker compose exec backend python manage.py shell
 
 # View application logs
-./scripts/run-tests.sh logs
+docker compose logs
 ```
 
 ## 🔄 Continuous Integration
@@ -396,18 +389,21 @@ jobs:
 The Cypress tests cover:
 
 ### Frontend Functionality
+
 - ✅ User registration and authentication
 - ✅ Form validation and error handling
 - ✅ Navigation and routing
 - ✅ UI interactions and state management
 
 ### Backend Integration
+
 - ✅ API endpoint functionality
 - ✅ Database operations
 - ✅ Session management
 - ✅ Error handling
 
 ### Business Logic
+
 - ✅ Ballot purchase workflow
 - ✅ Ballot assignment to draws
 - ✅ Draw browsing and results
@@ -438,6 +434,59 @@ Planned improvements to the test suite:
 - [Next.js Testing](https://nextjs.org/docs/testing)
 - [Docker Compose Testing](https://docs.docker.com/compose/compose-file/)
 
+## 🧪 Frontend Unit Tests
+
+The frontend includes comprehensive unit testing using Jest and React Testing Library. For detailed information about frontend testing, see the [Frontend Testing Guide](../frontend/TESTING.md).
+
+### Quick Start
+
+```bash
+# Run all tests (includes frontend unit tests and linting)
+./scripts/run-tests.sh
+```
+
+The script automatically runs frontend linting, unit tests, backend tests, and E2E tests.
+
+### Test Structure
+
+```
+frontend/
+├── src/
+│   ├── components/
+│   │   ├── __tests__/
+│   │   │   └── Navbar.test.tsx
+│   │   └── Navbar.tsx
+│   ├── lib/
+│   │   ├── __tests__/
+│   │   │   ├── auth.test.ts
+│   │   │   └── utils.test.ts
+│   │   ├── auth.tsx
+│   │   ├── utils.ts
+│   │   └── test-utils.tsx
+│   └── app/
+│       └── __tests__/
+│           └── (page tests)
+├── jest.config.js
+├── jest.setup.js
+└── package.json
+```
+
+### Testing Stack
+
+- **Jest**: Test runner and assertion library
+- **React Testing Library**: Component testing utilities
+- **@testing-library/jest-dom**: Custom Jest matchers for DOM testing
+- **@testing-library/user-event**: User interaction simulation
+
+### Coverage Goals
+
+- **Lines**: 70% minimum
+- **Functions**: 70% minimum
+- **Branches**: 70% minimum
+- **Statements**: 70% minimum
+
+For comprehensive frontend testing documentation, examples, and best practices, see [Frontend Testing Guide](../frontend/TESTING.md).
+
 ---
 
-For questions or issues with testing, please refer to the [`cypress/README.md`](../cypress/README.md) file or contact the development team. 
+For questions or issues with testing, please refer to the [`cypress/README.md`](../cypress/README.md) file or contact the development team.

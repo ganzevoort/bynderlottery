@@ -19,25 +19,25 @@ spec:
         app: docker-registry
     spec:
       volumes:
-      - name: registry-pv-storage
-        persistentVolumeClaim:
-          claimName: registry-pv-claim
+        - name: registry-pv-storage
+          persistentVolumeClaim:
+            claimName: registry-pv-claim
       containers:
-      - name: docker-registry-container
-        image: registry:2
-        ports:
-        - name: docker-registry
-          containerPort: 5000
-        volumeMounts:
-        - mountPath: "/var/lib/registry"
-          name: registry-pv-storage
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
+        - name: docker-registry-container
+          image: registry:2
+          ports:
+            - name: docker-registry
+              containerPort: 5000
+          volumeMounts:
+            - mountPath: "/var/lib/registry"
+              name: registry-pv-storage
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
 ---
 apiVersion: v1
 kind: Service
@@ -46,9 +46,9 @@ metadata:
   namespace: docker-registry
 spec:
   ports:
-  - name: http
-    port: 5000
-    targetPort: 5000
+    - name: http
+      port: 5000
+      targetPort: 5000
   selector:
     app: docker-registry
 ---
@@ -59,7 +59,7 @@ metadata:
   namespace: docker-registry
 spec:
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   resources:
     requests:
       storage: 10Gi
@@ -83,17 +83,17 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
 spec:
   tls:
-  - hosts:
-    - registry.bynderlottery.online
-    secretName: registry-tls
+    - hosts:
+        - registry.bynderlottery.online
+      secretName: registry-tls
   rules:
-  - host: registry.bynderlottery.online
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: docker-registry
-            port:
-              number: 5000 
+    - host: registry.bynderlottery.online
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: docker-registry
+                port:
+                  number: 5000

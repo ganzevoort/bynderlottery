@@ -56,4 +56,4 @@ describe('Signup Journey', () => {
         cy.visit('/my-ballots')
         cy.url().should('include', '/my-ballots')
     });
-}); 
+});

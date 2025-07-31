@@ -75,4 +75,4 @@ spec:
       name: beat
   selector:
     {{- include "lottery.selectorLabels" . | nindent 4 }}
-    component: celery-beat 
+    component: celery-beat

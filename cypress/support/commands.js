@@ -18,19 +18,19 @@ Cypress.Commands.add('getCSRFToken', () => {
 // Custom command to sign up a new user
 Cypress.Commands.add('signUp', (email, password, name) => {
   cy.visit('/auth/signup')
-  
+
   // Fill in the signup form
   cy.get('input[name="name"]').type(name)
   cy.get('input[name="email"]').type(email)
   cy.get('input[name="password1"]').type(password)
   cy.get('input[name="password2"]').type(password)
-  
+
   // Submit the form
   cy.get('button[type="submit"]').click()
-  
+
   // Should show success message
   cy.contains('Account created successfully').should('be.visible')
-  
+
   // Verify the user programmatically for testing
   cy.request('POST', '/api/test/verify-user/', { email })
 })
@@ -38,17 +38,17 @@ Cypress.Commands.add('signUp', (email, password, name) => {
 // Custom command to sign in a user
 Cypress.Commands.add('signIn', (email, password) => {
   cy.visit('/auth/signin')
-  
+
   // Fill in the signin form
   cy.get('input[name="email"]').type(email)
   cy.get('input[name="password"]').type(password)
-  
+
   // Submit the form
   cy.get('button[type="submit"]').click()
-  
+
   // Should redirect to home page
   cy.url().should('eq', 'http://web/')
-  
+
   // Verify user is authenticated by checking API directly
   cy.request('GET', '/api/accounts/profile/').then((response) => {
     expect(response.status).to.eq(200)
@@ -60,7 +60,7 @@ Cypress.Commands.add('signOut', () => {
   // Click on user menu and sign out
   cy.get('[data-testid="user-menu"]').click()
   cy.get('[data-testid="sign-out"]').click()
-  
+
   // Should redirect to home page
   cy.url().should('eq', 'http://web/')
 })
@@ -68,20 +68,20 @@ Cypress.Commands.add('signOut', () => {
 // Custom command to buy ballots
 Cypress.Commands.add('buyBallots', (quantity) => {
   cy.visit('/my-ballots')
-  
+
   // Expand the purchase section
   cy.contains('Purchase New Ballots').click()
-  
+
   // Fill in the purchase form
   cy.get('input[name="quantity"]').type(quantity.toString())
   cy.get('input[name="card_number"]').type('1234567890123456')
   cy.get('input[name="expiry_month"]').type('12')
   cy.get('input[name="expiry_year"]').type('2025')
   cy.get('input[name="cvv"]').type('123')
-  
+
   // Submit the form
   cy.get('button[type="submit"]').click()
-  
+
   // Should show success message
   cy.contains('Successfully purchased').should('be.visible')
 })
@@ -89,14 +89,14 @@ Cypress.Commands.add('buyBallots', (quantity) => {
 // Custom command to assign ballot to a draw
 Cypress.Commands.add('assignBallot', (drawId) => {
   cy.visit('/my-ballots')
-  
+
   // Find an unassigned ballot and assign it
   cy.get('[data-testid="unassigned-ballot"]').first().within(() => {
     cy.get('[data-testid="assign-button"]').click()
     cy.get('select').select(drawId.toString())
     cy.get('button[type="submit"]').click()
   })
-  
+
   // Should show success message
   cy.contains('Ballot assigned successfully').should('be.visible')
 })
@@ -149,4 +149,4 @@ Cypress.Commands.add('setupTestData', () => {
 // Custom command to get test tokens for an email
 Cypress.Commands.add('getTestTokens', (email) => {
   return cy.request('POST', '/api/test/get-tokens/', { email })
-}) 
+})

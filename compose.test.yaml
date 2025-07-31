@@ -1,11 +1,10 @@
 name: lottery-test
 
 services:
-
   web:
     image: nginx
     ports:
-      - '127.0.0.1:8081:80' # Different port to avoid conflicts
+      - "127.0.0.1:8081:80" # Different port to avoid conflicts
     volumes:
       - ./nginx/templates:/etc/nginx/templates:ro
     environment:
@@ -18,35 +17,26 @@ services:
     build:
       context: frontend
       target: production
-    environment:
-      - NODE_ENV=test
+    env_file: test.env
 
   backend:
     build:
       context: backend
       target: production
-    environment:
-      - LAYER=test
-      - SECRET_KEY=test-secret-key-for-testing-only
-      - TIME_ZONE=Europe/Amsterdam
-      - DEFAULT_FROM_EMAIL=noreply@lottery.com
-      - EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
-      - DATABASE_ENGINE=django.db.backends.sqlite3
-      - DATABASE_NAME=/tmp/test_db.sqlite3
-      - REDIS_HOST=localhost
-      - REDIS_PORT=6379
-    command: sh -c " python manage.py migrate && python manage.py runserver 0.0.0.0:8000 "
+    env_file: test.env
+    command: >
+      sh -c "
+        python manage.py migrate &&
+        python manage.py runserver 0.0.0.0:8000
+      "
 
   cypress:
     image: cypress/included:13.6.1
-    environment:
-      - CYPRESS_baseUrl=http://web
-      - CYPRESS_video=true
-      - CYPRESS_screenshotOnRunFailure=true
+    env_file: test.env
     volumes:
       - ./cypress:/e2e
     working_dir: /e2e
-    entrypoint: [ "tail", "-f", "/dev/null" ]
+    entrypoint: ["tail", "-f", "/dev/null"]
     depends_on:
       - web
       - frontend

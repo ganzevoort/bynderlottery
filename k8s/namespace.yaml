@@ -4,4 +4,4 @@ metadata:
   name: lottery
   labels:
     name: lottery
-    app: lottery 
+    app: lottery

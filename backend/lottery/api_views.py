@@ -4,19 +4,39 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiParameter,
+    OpenApiExample,
+)
+from drf_spectacular.types import OpenApiTypes
 
 from .serializers import (
     DrawSerializer,
     DrawDetailSerializer,
     BallotSerializer,
     BallotPurchaseSerializer,
-    BallotAssignmentSerializer,
     UserBallotsSerializer,
 )
 from .models import Draw, Ballot
 from accounts.models import Account
 
 
+@extend_schema(
+    tags=["Lottery"],
+    summary="List Open Draws",
+    description="Get all open draws that are available for ballot assignment",
+    responses={
+        200: DrawSerializer,
+        400: {
+            "description": "Bad request",
+            "type": "object",
+            "properties": {
+                "error": {"type": "string", "example": "Invalid request"}
+            },
+        },
+    },
+)
 class OpenDrawsView(generics.ListAPIView):
     """API endpoint for listing open draws"""
 
@@ -34,6 +54,21 @@ class OpenDrawsView(generics.ListAPIView):
         )
 
 
+@extend_schema(
+    tags=["Lottery"],
+    summary="List Closed Draws",
+    description="Get all closed draws with results and winners",
+    responses={
+        200: DrawDetailSerializer,
+        400: {
+            "description": "Bad request",
+            "type": "object",
+            "properties": {
+                "error": {"type": "string", "example": "Invalid request"}
+            },
+        },
+    },
+)
 class ClosedDrawsView(generics.ListAPIView):
     """API endpoint for listing closed draws"""
 
@@ -50,6 +85,32 @@ class ClosedDrawsView(generics.ListAPIView):
         )
 
 
+@extend_schema(
+    tags=["Lottery"],
+    summary="Get Draw Details",
+    description="Get detailed information about a specific draw",
+    parameters=[
+        OpenApiParameter(
+            name="pk",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description="Draw ID",
+            examples=[
+                OpenApiExample("Draw ID", value=1, description="Draw ID")
+            ],
+        )
+    ],
+    responses={
+        200: DrawDetailSerializer,
+        404: {
+            "description": "Draw not found",
+            "type": "object",
+            "properties": {
+                "error": {"type": "string", "example": "Draw not found"}
+            },
+        },
+    },
+)
 class DrawDetailView(generics.RetrieveAPIView):
     """API endpoint for detailed draw information"""
 
@@ -60,6 +121,24 @@ class DrawDetailView(generics.RetrieveAPIView):
     )
 
 
+@extend_schema(
+    tags=["User Ballots"],
+    summary="Get User Ballots",
+    description="Get the current user's ballot summary and unassigned ballots",
+    responses={
+        200: UserBallotsSerializer,
+        401: {
+            "description": "Unauthorized",
+            "type": "object",
+            "properties": {
+                "detail": {
+                    "type": "string",
+                    "example": "Authentication credentials were not provided.",
+                }
+            },
+        },
+    },
+)
 class UserBallotsView(APIView):
     """API endpoint for user's ballots"""
 
@@ -71,6 +150,42 @@ class UserBallotsView(APIView):
         return Response(serializer.data)
 
 
+@extend_schema(
+    tags=["User Ballots"],
+    summary="Purchase Ballots",
+    description="Purchase new ballots for the current user",
+    request=BallotPurchaseSerializer,
+    responses={
+        200: {
+            "description": "Ballots purchased successfully",
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Successfully purchased 5 ballot(s)",
+                },
+                "ballots_created": {"type": "integer", "example": 5},
+            },
+        },
+        400: {
+            "description": "Bad request",
+            "type": "object",
+            "properties": {
+                "error": {"type": "string", "example": "Invalid quantity"}
+            },
+        },
+        401: {
+            "description": "Unauthorized",
+            "type": "object",
+            "properties": {
+                "detail": {
+                    "type": "string",
+                    "example": "Authentication credentials were not provided.",
+                }
+            },
+        },
+    },
+)
 class BallotPurchaseView(APIView):
     """API endpoint for purchasing ballots"""
 
@@ -98,9 +213,6 @@ class BallotPurchaseView(APIView):
                 {
                     "message": f"Successfully purchased {quantity} ballot(s)",
                     "ballots_created": len(ballots),
-                    "total_ballots": Ballot.objects.filter(
-                        account__user=request.user
-                    ).count(),
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -108,46 +220,137 @@ class BallotPurchaseView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(
+    tags=["User Ballots"],
+    summary="Assign Ballot to Draw",
+    description="Assign a user's ballot to a specific draw",
+    parameters=[
+        OpenApiParameter(
+            name="ballot_id",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description="Ballot ID",
+            examples=[
+                OpenApiExample("Ballot ID", value=1, description="Ballot ID")
+            ],
+        )
+    ],
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "draw_id": {
+                    "type": "integer",
+                    "description": "Draw ID to assign ballot to",
+                    "example": 1,
+                }
+            },
+            "required": ["draw_id"],
+        }
+    },
+    responses={
+        200: {
+            "description": "Ballot assigned successfully",
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Ballot assigned to draw successfully",
+                }
+            },
+        },
+        400: {
+            "description": "Bad request",
+            "type": "object",
+            "properties": {
+                "error": {"type": "string", "example": "Invalid draw ID"}
+            },
+        },
+        404: {
+            "description": "Ballot or draw not found",
+            "type": "object",
+            "properties": {
+                "error": {"type": "string", "example": "Ballot not found"}
+            },
+        },
+    },
+)
 class BallotAssignmentView(APIView):
     """API endpoint for assigning ballots to draws"""
 
     permission_classes = [IsAuthenticated]
 
     def post(self, request, ballot_id):
-        """Assign a ballot to a draw"""
-        # Get the ballot and ensure it belongs to the user
-        ballot = get_object_or_404(
-            Ballot, id=ballot_id, account__user=request.user
-        )
-
-        # Check if ballot is already assigned
-        if ballot.draw:
-            return Response(
-                {"error": "Ballot is already assigned to a draw"},
-                status=status.HTTP_400_BAD_REQUEST,
+        """Assign ballot to draw"""
+        try:
+            ballot = get_object_or_404(
+                Ballot, id=ballot_id, account__user=request.user
             )
+            draw_id = request.data.get("draw_id")
 
-        serializer = BallotAssignmentSerializer(data=request.data)
-        if serializer.is_valid():
-            draw_id = serializer.validated_data["draw_id"]
-            draw = get_object_or_404(Draw, id=draw_id)
+            if not draw_id:
+                return Response(
+                    {"error": "draw_id is required"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            try:
+                draw = Draw.objects.get(id=draw_id, closed__isnull=True)
+            except Draw.DoesNotExist:
+                return Response(
+                    {"error": "Invalid draw ID"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # Check if ballot is already assigned
+            if ballot.draw:
+                return Response(
+                    {"error": "Ballot is already assigned to a draw"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             # Assign ballot to draw
             ballot.draw = draw
             ballot.save()
 
             return Response(
-                {
-                    "message": f"Ballot successfully assigned to {draw}",
-                    "ballot_id": ballot.id,
-                    "draw_id": draw.id,
-                },
+                {"message": "Ballot assigned to draw successfully"},
                 status=status.HTTP_200_OK,
             )
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Ballot.DoesNotExist:
+            return Response(
+                {"error": "Ballot not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
 
+@extend_schema(
+    tags=["User Ballots"],
+    summary="Get Ballot Details",
+    description="Get detailed information about a specific ballot",
+    parameters=[
+        OpenApiParameter(
+            name="pk",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description="Ballot ID",
+            examples=[
+                OpenApiExample("Ballot ID", value=1, description="Ballot ID")
+            ],
+        )
+    ],
+    responses={
+        200: BallotSerializer,
+        404: {
+            "description": "Ballot not found",
+            "type": "object",
+            "properties": {
+                "error": {"type": "string", "example": "Ballot not found"}
+            },
+        },
+    },
+)
 class BallotDetailView(generics.RetrieveAPIView):
     """API endpoint for individual ballot details"""
 
@@ -155,12 +358,74 @@ class BallotDetailView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Only show ballots belonging to the authenticated user"""
-        return Ballot.objects.filter(
-            account__user=self.request.user
-        ).select_related("draw", "prize")
+        """Get ballots for the current user"""
+        return Ballot.objects.filter(account__user=self.request.user)
 
 
+@extend_schema(
+    tags=["User Winnings"],
+    summary="Get User Winnings",
+    description="Get the current user's winnings summary",
+    responses={
+        200: {
+            "description": "User winnings summary",
+            "type": "object",
+            "properties": {
+                "total_winnings": {"type": "integer", "example": 100000},
+                "total_winning_ballots": {"type": "integer", "example": 3},
+                "winnings_by_draw": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "draw": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {"type": "integer", "example": 1},
+                                    "drawtype_name": {
+                                        "type": "string",
+                                        "example": "Daily",
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-07-28",
+                                    },
+                                },
+                            },
+                            "prizes": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "prize_name": {
+                                            "type": "string",
+                                            "example": "Jackpot",
+                                        },
+                                        "prize_amount": {
+                                            "type": "integer",
+                                            "example": 100000,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        401: {
+            "description": "Unauthorized",
+            "type": "object",
+            "properties": {
+                "detail": {
+                    "type": "string",
+                    "example": "Authentication credentials were not provided.",
+                }
+            },
+        },
+    },
+)
 class UserWinningsView(APIView):
     """API endpoint for user's winnings summary"""
 
@@ -206,6 +471,70 @@ class UserWinningsView(APIView):
         )
 
 
+@extend_schema(
+    tags=["Lottery Statistics"],
+    summary="Get Lottery Statistics",
+    description=(
+        "Get public lottery statistics including draws, prizes, "
+        "and recent winners"
+    ),
+    responses={
+        200: {
+            "description": "Lottery statistics",
+            "type": "object",
+            "properties": {
+                "total_draws": {"type": "integer", "example": 5},
+                "open_draws": {"type": "integer", "example": 3},
+                "closed_draws": {"type": "integer", "example": 1},
+                "total_prizes_awarded": {"type": "integer", "example": 1},
+                "total_amount_awarded": {"type": "integer", "example": 100000},
+                "recent_winners": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "draw": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {"type": "integer", "example": 1},
+                                    "drawtype_name": {
+                                        "type": "string",
+                                        "example": "Daily",
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-07-28",
+                                    },
+                                },
+                            },
+                            "winners": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "example": "John Doe",
+                                        },
+                                        "prize_name": {
+                                            "type": "string",
+                                            "example": "Jackpot",
+                                        },
+                                        "prize_amount": {
+                                            "type": "integer",
+                                            "example": 100000,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        }
+    },
+)
 class LotteryStatsView(APIView):
     """API endpoint for lottery statistics"""
 

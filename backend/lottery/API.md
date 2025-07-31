@@ -3,9 +3,11 @@
 This document describes the REST API endpoints for the lottery app.
 
 ## Base URL
+
 All endpoints are prefixed with `/api/lottery/`
 
 ## Authentication
+
 - **Session Authentication**: Uses Django's session-based authentication
 - **Public Endpoints**: Some endpoints are accessible without authentication
 - **Protected Endpoints**: Require authentication and return 403 Forbidden if not authenticated
@@ -15,154 +17,162 @@ All endpoints are prefixed with `/api/lottery/`
 ### Public Endpoints (No Authentication Required)
 
 #### 1. List Open Draws
+
 **GET** `/api/lottery/draws/open/`
 
 Returns a list of all open (future) draws that users can assign ballots to.
 
 **Response (200 OK):**
+
 ```json
 [
-    {
+  {
+    "id": 1,
+    "drawtype": {
+      "id": 1,
+      "name": "Daily Lottery",
+      "is_active": true,
+      "schedule": {}
+    },
+    "date": "2025-01-15",
+    "closed": null,
+    "ballots": 0,
+    "prizes": [
+      {
         "id": 1,
-        "drawtype": {
-            "id": 1,
-            "name": "Daily Lottery",
-            "is_active": true,
-            "schedule": {}
-        },
-        "date": "2025-01-15",
-        "closed": null,
-        "ballots": 0,
-        "prizes": [
-            {
-                "id": 1,
-                "name": "First Prize",
-                "amount": 1000,
-                "number": 1,
-                "drawtype": 1
-            }
-        ],
-        "winner_count": 0,
-        "total_prize_amount": 0
-    }
+        "name": "First Prize",
+        "amount": 1000,
+        "number": 1,
+        "drawtype": 1
+      }
+    ],
+    "winner_count": 0,
+    "total_prize_amount": 0
+  }
 ]
 ```
 
 ---
 
 #### 2. List Closed Draws
+
 **GET** `/api/lottery/draws/closed/`
 
 Returns a list of all closed draws with winner information.
 
 **Response (200 OK):**
+
 ```json
 [
-    {
-        "id": 2,
-        "drawtype": {
-            "id": 1,
-            "name": "Daily Lottery",
-            "is_active": true,
-            "schedule": {}
-        },
-        "date": "2025-01-08",
-        "closed": "2025-01-08T20:00:00Z",
-        "ballots": 5,
-        "prizes": [
-            {
-                "id": 1,
-                "name": "First Prize",
-                "amount": 1000,
-                "number": 1,
-                "drawtype": 1
-            }
-        ],
-        "winner_count": 1,
-        "total_prize_amount": 1000,
-        "winners": [
-            {
-                "name": "John Doe",
-                "prize_name": "First Prize",
-                "prize_amount": 1000
-            }
-        ]
-    }
+  {
+    "id": 2,
+    "drawtype": {
+      "id": 1,
+      "name": "Daily Lottery",
+      "is_active": true,
+      "schedule": {}
+    },
+    "date": "2025-01-08",
+    "closed": "2025-01-08T20:00:00Z",
+    "ballots": 5,
+    "prizes": [
+      {
+        "id": 1,
+        "name": "First Prize",
+        "amount": 1000,
+        "number": 1,
+        "drawtype": 1
+      }
+    ],
+    "winner_count": 1,
+    "total_prize_amount": 1000,
+    "winners": [
+      {
+        "name": "John Doe",
+        "prize_name": "First Prize",
+        "prize_amount": 1000
+      }
+    ]
+  }
 ]
 ```
 
 ---
 
 #### 3. Draw Details
+
 **GET** `/api/lottery/draws/{id}/`
 
 Returns detailed information about a specific draw.
 
 **Response (200 OK):**
+
 ```json
 {
-    "id": 2,
-    "drawtype": {
-        "id": 1,
-        "name": "Daily Lottery",
-        "is_active": true,
-        "schedule": {}
-    },
-    "date": "2025-01-08",
-    "closed": "2025-01-08T20:00:00Z",
-    "ballots": 5,
-    "prizes": [
-        {
-            "id": 1,
-            "name": "First Prize",
-            "amount": 1000,
-            "number": 1,
-            "drawtype": 1
-        }
-    ],
-    "winner_count": 1,
-    "total_prize_amount": 1000,
-    "winners": [
-        {
-            "name": "John Doe",
-            "prize_name": "First Prize",
-            "prize_amount": 1000
-        }
-    ]
+  "id": 2,
+  "drawtype": {
+    "id": 1,
+    "name": "Daily Lottery",
+    "is_active": true,
+    "schedule": {}
+  },
+  "date": "2025-01-08",
+  "closed": "2025-01-08T20:00:00Z",
+  "ballots": 5,
+  "prizes": [
+    {
+      "id": 1,
+      "name": "First Prize",
+      "amount": 1000,
+      "number": 1,
+      "drawtype": 1
+    }
+  ],
+  "winner_count": 1,
+  "total_prize_amount": 1000,
+  "winners": [
+    {
+      "name": "John Doe",
+      "prize_name": "First Prize",
+      "prize_amount": 1000
+    }
+  ]
 }
 ```
 
 ---
 
 #### 4. Lottery Statistics
+
 **GET** `/api/lottery/stats/`
 
 Returns public statistics about the lottery system.
 
 **Response (200 OK):**
+
 ```json
 {
-    "total_draws": 10,
-    "open_draws": 3,
-    "closed_draws": 7,
-    "total_prizes_awarded": 15,
-    "total_amount_awarded": 15000,
-    "recent_winners": [
+  "total_draws": 10,
+  "open_draws": 3,
+  "closed_draws": 7,
+  "total_prizes_awarded": 15,
+  "total_amount_awarded": 15000,
+  "recent_winners": [
+    {
+      "draw": {
+        "id": 2,
+        "drawtype_name": "Daily Lottery",
+        "date": "2025-01-08"
+      },
+      "winners": [
         {
-            "draw": {
-                "id": 2,
-                "drawtype_name": "Daily Lottery",
-                "date": "2025-01-08"
-            },
-            "winners": [
-                {
-                    "name": "John Doe",
-                    "prize_name": "First Prize",
-                    "prize_amount": 1000
-                }
-            ]
+          "name": "John Doe",
+          "prize_name": "First Prize",
+          "prize_amount": 1000
         }
-    ]
+      ]
+    }
+  ]
 }
 ```
 
@@ -171,11 +181,13 @@ Returns public statistics about the lottery system.
 ### Protected Endpoints (Authentication Required)
 
 #### 5. User Ballots
+
 **GET** `/api/lottery/my-ballots/`
 
 Returns the current user's ballot summary, including unassigned and assigned ballots.
 
 **Response (200 OK):**
+
 ```json
 {
     "unassigned_ballots": [
@@ -220,34 +232,36 @@ Returns the current user's ballot summary, including unassigned and assigned bal
 ---
 
 #### 6. User Winnings
+
 **GET** `/api/lottery/my-winnings/`
 
 Returns the current user's winnings summary.
 
 **Response (200 OK):**
+
 ```json
 {
-    "total_winnings": 2500,
-    "total_winning_ballots": 2,
-    "winnings_by_draw": [
+  "total_winnings": 2500,
+  "total_winning_ballots": 2,
+  "winnings_by_draw": [
+    {
+      "draw": {
+        "id": 2,
+        "drawtype_name": "Daily Lottery",
+        "date": "2025-01-08"
+      },
+      "prizes": [
         {
-            "draw": {
-                "id": 2,
-                "drawtype_name": "Daily Lottery",
-                "date": "2025-01-08"
-            },
-            "prizes": [
-                {
-                    "prize_name": "First Prize",
-                    "prize_amount": 1000
-                },
-                {
-                    "prize_name": "Second Prize",
-                    "prize_amount": 500
-                }
-            ]
+          "prize_name": "First Prize",
+          "prize_amount": 1000
+        },
+        {
+          "prize_name": "Second Prize",
+          "prize_amount": 500
         }
-    ]
+      ]
+    }
+  ]
 }
 ```
 
@@ -256,31 +270,35 @@ Returns the current user's winnings summary.
 ---
 
 #### 7. Purchase Ballots
+
 **POST** `/api/lottery/purchase-ballots/`
 
 Purchases new ballots for the current user (mock implementation).
 
 **Request Body:**
+
 ```json
 {
-    "quantity": 5,
-    "card_number": "4111111111111111",
-    "expiry_month": 12,
-    "expiry_year": 2025,
-    "cvv": "123"
+  "quantity": 5,
+  "card_number": "4111111111111111",
+  "expiry_month": 12,
+  "expiry_year": 2025,
+  "cvv": "123"
 }
 ```
 
 **Response (201 Created):**
+
 ```json
 {
-    "message": "Successfully purchased 5 ballot(s)",
-    "ballots_created": 5,
-    "total_ballots": 7
+  "message": "Successfully purchased 5 ballot(s)",
+  "ballots_created": 5,
+  "total_ballots": 7
 }
 ```
 
 **Validation Errors (400 Bad Request):**
+
 - Invalid quantity (must be 1-100)
 - Invalid card number format
 - Invalid expiry month (1-12)
@@ -292,27 +310,31 @@ Purchases new ballots for the current user (mock implementation).
 ---
 
 #### 8. Assign Ballot to Draw
+
 **POST** `/api/lottery/ballots/{ballot_id}/assign/`
 
 Assigns an unassigned ballot to a specific draw.
 
 **Request Body:**
+
 ```json
 {
-    "draw_id": 1
+  "draw_id": 1
 }
 ```
 
 **Response (200 OK):**
+
 ```json
 {
-    "message": "Ballot successfully assigned to Daily Lottery draw on 2025-01-15",
-    "ballot_id": 1,
-    "draw_id": 1
+  "message": "Ballot successfully assigned to Daily Lottery draw on 2025-01-15",
+  "ballot_id": 1,
+  "draw_id": 1
 }
 ```
 
 **Validation Errors (400 Bad Request):**
+
 - Ballot already assigned to a draw
 - Draw does not exist
 - Draw is closed
@@ -322,11 +344,13 @@ Assigns an unassigned ballot to a specific draw.
 ---
 
 #### 9. Ballot Details
+
 **GET** `/api/lottery/ballots/{id}/`
 
 Returns details of a specific ballot belonging to the current user.
 
 **Response (200 OK):**
+
 ```json
 {
     "id": 1,
@@ -368,9 +392,9 @@ Error responses include details about what went wrong:
 
 ```json
 {
-    "quantity": ["Ensure this value is greater than or equal to 1."],
-    "card_number": ["Card number must contain only digits"],
-    "draw_id": ["Cannot assign ballot to a closed draw"]
+  "quantity": ["Ensure this value is greater than or equal to 1."],
+  "card_number": ["Card number must contain only digits"],
+  "draw_id": ["Cannot assign ballot to a closed draw"]
 }
 ```
 
@@ -397,6 +421,7 @@ The ballot purchase endpoint includes mock payment processing for demonstration 
 ## Rate Limiting
 
 Consider implementing rate limiting for:
+
 - Ballot purchases
 - Ballot assignments
 - API requests in general
@@ -404,9 +429,10 @@ Consider implementing rate limiting for:
 ## Future Enhancements
 
 Potential API enhancements:
+
 - Pagination for large result sets
 - Filtering and sorting options
 - Real-time notifications for draw results
 - Webhook support for external integrations
 - Advanced search functionality
-- Bulk operations for ballot management 
+- Bulk operations for ballot management

@@ -20,4 +20,4 @@ import './commands'
 // require('./commands')
 
 // Add custom commands for lottery app
-// Note: TypeScript declarations are not needed in JS files 
+// Note: TypeScript declarations are not needed in JS files

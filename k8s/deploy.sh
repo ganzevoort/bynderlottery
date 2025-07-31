@@ -86,13 +86,13 @@ install_dependencies() {
 # Function to build and push Docker images
 build_images() {
     print_status "Building Docker images..."
-    
+
     # Build backend image
     docker build -t your-registry/lottery-backend:latest backend/
-    
+
     # Build frontend image
     docker build -t your-registry/lottery-frontend:latest frontend/
-    
+
     print_status "Pushing Docker images..."
     docker push your-registry/lottery-backend:latest
     docker push your-registry/lottery-frontend:latest
@@ -101,12 +101,12 @@ build_images() {
 # Function to deploy application
 deploy_application() {
     print_status "Deploying lottery application..."
-    
+
     # Update values file with your domain
     if [ -n "$DOMAIN" ]; then
         sed -i "s/yourdomain.com/$DOMAIN/g" $VALUES_FILE
     fi
-    
+
     # Deploy using Helm
     helm install lottery $CHART_PATH \
         --namespace $NAMESPACE \
@@ -199,4 +199,4 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Run main function
-main $COMMAND 
+main $COMMAND

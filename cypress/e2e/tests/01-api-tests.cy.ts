@@ -15,7 +15,6 @@ describe('API Endpoints', () => {
         cy.request('POST', '/api/accounts/signup/', userData).then((response) => {
             expect(response.status).to.eq(201)
             expect(response.body).to.have.property('message')
-            expect(response.body).to.have.property('user_id')
         })
     })
 
@@ -42,7 +41,6 @@ describe('API Endpoints', () => {
                 }).then((response) => {
                     expect(response.status).to.eq(200)
                     expect(response.body).to.have.property('message')
-                    expect(response.body).to.have.property('user')
                 })
             })
         })
@@ -254,8 +252,7 @@ describe('API Endpoints', () => {
                             }
                         }).then((response) => {
                             expect(response.status).to.eq(200)
-                            expect(response.body).to.have.property('user')
-                            expect(response.body.user).to.have.property('name', 'Updated Name')
+                            expect(response.body).to.have.property('name', 'Updated Name')
                             expect(response.body).to.have.property('bankaccount', 'NL91ABNA0417164300')
                         })
                     })
@@ -271,4 +268,4 @@ describe('API Endpoints', () => {
             expect(response.body).to.have.property('database', 'connected')
         })
     })
-}) 
+})

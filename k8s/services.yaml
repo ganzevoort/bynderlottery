@@ -9,9 +9,9 @@ spec:
   selector:
     app: lottery-backend
   ports:
-  - port: 8000
-    targetPort: 8000
-    protocol: TCP
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
   type: ClusterIP
 
 ---
@@ -26,9 +26,9 @@ spec:
   selector:
     app: lottery-frontend
   ports:
-  - port: 3000
-    targetPort: 3000
-    protocol: TCP
+    - port: 3000
+      targetPort: 3000
+      protocol: TCP
   type: ClusterIP
 
 ---
@@ -43,9 +43,9 @@ spec:
   selector:
     app: lottery-celery-worker
   ports:
-  - port: 5555
-    targetPort: 5555
-    protocol: TCP
+    - port: 5555
+      targetPort: 5555
+      protocol: TCP
   type: ClusterIP
 
 ---
@@ -60,7 +60,7 @@ spec:
   selector:
     app: lottery-celery-beat
   ports:
-  - port: 5556
-    targetPort: 5556
-    protocol: TCP
-  type: ClusterIP 
+    - port: 5556
+      targetPort: 5556
+      protocol: TCP
+  type: ClusterIP

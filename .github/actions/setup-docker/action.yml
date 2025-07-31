@@ -1,9 +1,9 @@
-name: 'Setup Docker Environment'
-description: 'Setup Docker Buildx, login to registry, and update compose file'
+name: "Setup Docker Environment"
+description: "Setup Docker Buildx, login to registry, and update compose file"
 
 inputs:
   registry-password:
-    description: 'Registry password'
+    description: "Registry password"
     required: true
 
 runs:
@@ -21,4 +21,4 @@ runs:
 
     - name: Update compose file to use registry images
       shell: bash
-      run: python3 scripts/update-compose.py ${{ env.REGISTRY }} ${{ github.sha }} 
+      run: python3 scripts/update-compose.py ${{ env.REGISTRY }} ${{ github.sha }}

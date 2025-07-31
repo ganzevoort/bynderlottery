@@ -18,4 +18,4 @@ Your ballot{{prizes|length|pluralize}} was selected as winning entr{{prizes|leng
 Thank you for participating in our lottery!
 
 Best regards,
-The Lottery Team 
+The Lottery Team

@@ -21,17 +21,20 @@ This guide will help you set up a Kubernetes cluster on TransIP and deploy your 
 2. Configure the cluster with these recommended settings:
 
 **Basic Configuration:**
+
 - **Cluster ID**: `k8g67` (assigned by TransIP)
 - **Region**: Choose the closest to your users (e.g., Amsterdam for EU)
 - **Kubernetes Version**: Latest stable (1.28+)
 
 **Node Pool Configuration:**
+
 - **Node Pool Name**: `lottery-nodes`
 - **Node Count**: Start with 2-3 nodes
 - **Instance Type**: `t3.medium` or `t3.large` (2 vCPU, 4-8 GB RAM)
 - **Storage**: 20-50 GB per node
 
 **Network Configuration:**
+
 - **VPC**: Use default VPC
 - **Subnet**: Choose appropriate subnet
 - **Security Groups**: Allow HTTP (80), HTTPS (443), and SSH (22)
@@ -300,12 +303,14 @@ kubectl apply -f k8s/network-policies.yaml
 ### Common Issues
 
 1. **Image Pull Errors**
+
    ```bash
    # Check if images exist in registry
    docker pull registry.transip.nl/your-username/lottery-backend:latest
    ```
 
 2. **Database Connection Issues**
+
    ```bash
    # Check PostgreSQL service
    kubectl get pods -n lottery -l app=postgresql
@@ -313,6 +318,7 @@ kubectl apply -f k8s/network-policies.yaml
    ```
 
 3. **Ingress Issues**
+
    ```bash
    # Check ingress controller
    kubectl get pods -n ingress-nginx
@@ -364,4 +370,4 @@ kubectl scale deployment lottery-backend --replicas=3 -n lottery
 
 - **TransIP Support**: Contact TransIP support for cluster issues
 - **Application Issues**: Check logs and monitoring dashboards
-- **Community**: Use Kubernetes and Helm community resources 
+- **Community**: Use Kubernetes and Helm community resources

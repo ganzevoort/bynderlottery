@@ -16,48 +16,46 @@ spec:
         app: lottery-backend
     spec:
       imagePullSecrets:
-      - name: registry-secret
+        - name: registry-secret
       containers:
-      - name: lottery-backend
-        image: registry.bynderlottery.online/lottery-backend:latest
-        ports:
-        - containerPort: 8000
-        envFrom:
-        - configMapRef:
-            name: lottery-config
-        - secretRef:
-            name: lottery-secrets
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "200m"
-        livenessProbe:
-          httpGet:
-            path: /api/lottery/stats/
-            port: 8000
-            httpHeaders:
-            - name: Host
-              value: bynderlottery.online
-            - name: X-Forwarded-Proto
-              value: https
-          initialDelaySeconds: 60
-          periodSeconds: 30
-        readinessProbe:
-          httpGet:
-            path: /api/lottery/stats/
-            port: 8000
-            httpHeaders:
-            - name: Host
-              value: bynderlottery.online
-            - name: X-Forwarded-Proto
-              value: https
-          initialDelaySeconds: 30
-          periodSeconds: 10
-
-
+        - name: lottery-backend
+          image: registry.bynderlottery.online/lottery-backend:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: lottery-config
+            - secretRef:
+                name: lottery-secrets
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /api/lottery/stats/
+              port: 8000
+              httpHeaders:
+                - name: Host
+                  value: bynderlottery.online
+                - name: X-Forwarded-Proto
+                  value: https
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /api/lottery/stats/
+              port: 8000
+              httpHeaders:
+                - name: Host
+                  value: bynderlottery.online
+                - name: X-Forwarded-Proto
+                  value: https
+            initialDelaySeconds: 30
+            periodSeconds: 10
 
 ---
 apiVersion: apps/v1
@@ -78,34 +76,34 @@ spec:
         app: lottery-frontend
     spec:
       imagePullSecrets:
-      - name: registry-secret
+        - name: registry-secret
       containers:
-      - name: lottery-frontend
-        image: registry.bynderlottery.online/lottery-frontend:latest
-        ports:
-        - containerPort: 3000
-        envFrom:
-        - configMapRef:
-            name: lottery-config
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "200m"
-          limits:
-            memory: "1Gi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 3000
-          initialDelaySeconds: 5
-          periodSeconds: 5
+        - name: lottery-frontend
+          image: registry.bynderlottery.online/lottery-frontend:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: lottery-config
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "200m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
 
 ---
 apiVersion: apps/v1
@@ -126,23 +124,32 @@ spec:
         app: lottery-celery-worker
     spec:
       imagePullSecrets:
-      - name: registry-secret
+        - name: registry-secret
       containers:
-      - name: lottery-celery-worker
-        image: registry.bynderlottery.online/lottery-backend:latest
-        command: ["celery", "--app", "service.background", "worker", "--loglevel", "INFO", "--events"]
-        envFrom:
-        - configMapRef:
-            name: lottery-config
-        - secretRef:
-            name: lottery-secrets
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "200m"
+        - name: lottery-celery-worker
+          image: registry.bynderlottery.online/lottery-backend:latest
+          command:
+            [
+              "celery",
+              "--app",
+              "service.background",
+              "worker",
+              "--loglevel",
+              "INFO",
+              "--events",
+            ]
+          envFrom:
+            - configMapRef:
+                name: lottery-config
+            - secretRef:
+                name: lottery-secrets
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
 
 ---
 apiVersion: apps/v1
@@ -163,20 +170,28 @@ spec:
         app: lottery-celery-beat
     spec:
       imagePullSecrets:
-      - name: registry-secret
+        - name: registry-secret
       containers:
-      - name: lottery-celery-beat
-        image: registry.bynderlottery.online/lottery-backend:latest
-        command: ["celery", "--app", "service.background", "beat", "--loglevel", "INFO"]
-        envFrom:
-        - configMapRef:
-            name: lottery-config
-        - secretRef:
-            name: lottery-secrets
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "200m" 
+        - name: lottery-celery-beat
+          image: registry.bynderlottery.online/lottery-backend:latest
+          command:
+            [
+              "celery",
+              "--app",
+              "service.background",
+              "beat",
+              "--loglevel",
+              "INFO",
+            ]
+          envFrom:
+            - configMapRef:
+                name: lottery-config
+            - secretRef:
+                name: lottery-secrets
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"

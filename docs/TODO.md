@@ -1,6 +1,7 @@
 # general
 
 - monitoring; metrics: #accounts, #unverified, #ballots, #winners etc
+- pip audit, yarn audit
 
 # backend
 

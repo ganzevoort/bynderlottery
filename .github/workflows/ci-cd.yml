@@ -37,20 +37,28 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:build-${{ github.sha }}
           target: production
-          cache-from: type=gha,type=registry,ref=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:buildcache
-          cache-to: type=gha,mode=max,type=registry,ref=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:buildcache,mode=max
+          cache-from: |
+            type=gha
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:buildcache
+          cache-to: |
+            type=gha,mode=max
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:buildcache
 
       - name: Backend linters and unittests
         # These tests are included as a build target.
-        # This should get almost everything from cache.
+        # Using separate cache to avoid conflicts with production build layers.
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           push: false
-          tags: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:build-${{ github.sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:tester-${{ github.sha }}
           target: tester
-          cache-from: type=gha,type=registry,ref=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:buildcachet
-          cache-to: type=gha,mode=max,type=registry,ref=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:buildcachet,mode=max
+          cache-from: |
+            type=gha
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:tester-cache
+          cache-to: |
+            type=gha,mode=max
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:tester-cache
 
   build-frontend:
     name: Build Frontend Image
@@ -72,20 +80,28 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:build-${{ github.sha }}
           target: production
-          cache-from: type=gha,type=registry,ref=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:buildcache
-          cache-to: type=gha,mode=max,type=registry,ref=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:buildcache,mode=max
+          cache-from: |
+            type=gha
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:buildcache
+          cache-to: |
+            type=gha,mode=max
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:buildcache
 
       - name: Frontend linters and unittests
         # These tests are included as a build target.
-        # This should get almost everything from cache.
+        # Using separate cache to avoid conflicts with production build layers.
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           push: false
-          tags: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:build-${{ github.sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:tester-${{ github.sha }}
           target: tester
-          cache-from: type=gha,type=registry,ref=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:buildcachet
-          cache-to: type=gha,mode=max,type=registry,ref=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:buildcachet,mode=max
+          cache-from: |
+            type=gha
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:tester-cache
+          cache-to: |
+            type=gha,mode=max
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:tester-cache
 
   test-integration:
     name: Run Integration Tests

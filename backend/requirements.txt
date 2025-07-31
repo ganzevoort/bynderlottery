@@ -1,5 +1,6 @@
 # Core
-Django
+
+django
 django-ordered-model
 djangorestframework
 drf-spectacular

@@ -80,13 +80,11 @@ lottery/
 ├── scripts/                   # Utility scripts
 │   ├── run-tests.sh          # Main testing script (runs all tests)
 │   ├── update-compose.py     # CI/CD compose file updater
-│   ├── setup-registry.sh     # Registry setup script
 │   └── dbdump.sh             # Database dump script
 │
 ├── docs/                      # Project documentation
 │   ├── TEST_ENVIRONMENT.md   # Test environment setup
 │   ├── TESTING.md            # Testing guide
-│   ├── REGISTRY_SETUP.md     # Docker registry setup
 │   ├── DEPLOYMENT_SUMMARY.md # Production deployment
 │   ├── CLUSTER_INFO.md       # Kubernetes cluster info
 │   └── TRANSIP_SETUP.md      # TransIP VPS setup
@@ -96,7 +94,7 @@ lottery/
 │   ├── configmaps.yaml        # Configuration
 │   ├── secrets.yaml           # Sensitive data
 │   ├── ingress.yaml           # External access
-│   └── registry-deployment.yaml # Docker registry
+
 │
 ├── .github/                   # GitHub Actions CI/CD
 │   ├── workflows/
@@ -547,7 +545,7 @@ The application is deployed to a Kubernetes cluster with:
 - **PostgreSQL** database (Helm chart)
 - **Redis** for caching and Celery
 - **Nginx Ingress** for external access
-- **Docker Registry** for image storage
+- **GitHub Container Registry** (ghcr.io) for image storage
 - **SSL/TLS** termination and HTTPS
 
 ## 🔮 Future Enhancements

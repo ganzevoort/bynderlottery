@@ -217,9 +217,6 @@ jobs:
           kubectl apply -f k8s/namespace.yaml
           kubectl apply -f k8s/configmaps.yaml -f k8s/deployments.yaml -f k8s/services.yaml -f k8s/ingress.yaml -f k8s/network-policies.yaml -f k8s/hpa.yaml -f k8s/backup-job.yaml -n lottery
 
-          # Apply docker-registry namespace resources
-          kubectl apply -f k8s/registry-deployment.yaml -n docker-registry
-
           # Restart lottery deployments
           kubectl rollout restart deployment lottery-backend lottery-frontend lottery-celery-worker lottery-celery-beat -n lottery
           kubectl rollout status deployment lottery-backend lottery-frontend lottery-celery-worker lottery-celery-beat -n lottery

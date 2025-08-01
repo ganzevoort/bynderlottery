@@ -14,7 +14,7 @@ The pipeline runs on:
 ### 1. Build Stage
 
 - **Parallel builds**: Backend and frontend images build simultaneously
-- **Docker registry**: Images pushed to `registry.bynderlottery.online`
+- **Docker registry**: Images pushed to GitHub Container Registry (ghcr.io)
 - **Build caching**: Uses GitHub Actions cache for faster builds
 - **Image tagging**: Uses SHA-based tags for traceability
 
@@ -42,7 +42,7 @@ Add these secrets in your GitHub repository settings:
 
 ### Container Registry
 
-- `REGISTRY_PASSWORD`: Password for `registry.bynderlottery.online` (username is set as environment variable)
+- `GHCR_ACCESS_TOKEN`: Personal access token for GitHub Container Registry (ghcr.io)
 
 ### Kubernetes Access
 

@@ -6,7 +6,7 @@ replicaCount:
   celeryBeat: 1
 
 image:
-  repository: registry.bynderlottery.online
+  repository: ghcr.io/ganzevoort/bynderlottery
   pullPolicy: IfNotPresent
   tag: "latest"
 

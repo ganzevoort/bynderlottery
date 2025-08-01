@@ -205,7 +205,9 @@ jobs:
 
       - name: Retag images as latest
         run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | crane auth login ghcr.io -u ${{ github.actor }} --password-stdin
+          # Authenticate with GitHub Container Registry using personal access token
+          echo ${{ secrets.GHCR_ACCESS_TOKEN }} | crane auth login ghcr.io -u ${{ env.REGISTRY_USERNAME }} --password-stdin
+          # Copy build images to latest tags for deployment
           crane copy ${{ env.BACKEND_IMAGE }}:build-${{ env.COMMIT_SHA }} ${{ env.BACKEND_IMAGE }}:latest
           crane copy ${{ env.FRONTEND_IMAGE }}:build-${{ env.COMMIT_SHA }} ${{ env.FRONTEND_IMAGE }}:latest
 

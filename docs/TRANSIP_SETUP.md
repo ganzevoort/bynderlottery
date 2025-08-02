@@ -5,7 +5,7 @@ This guide will help you set up a Kubernetes cluster on TransIP and deploy your 
 ## Prerequisites
 
 1. **TransIP Account**: You need an active TransIP account
-2. **Domain Name**: A domain name for your application (optional but recommended)
+2. **Domain Name**: A domain name for your application
 3. **Local Tools**: kubectl, helm, and docker installed on your local machine
 
 ## Step 1: Create TransIP Kubernetes Cluster
@@ -111,29 +111,29 @@ spec:
 EOF
 ```
 
-## Step 4: Set Up Container Registry
+## Step 4: Container Registry Setup
 
-### 4.1 TransIP Container Registry
+### 4.1 GitHub Container Registry (ghcr.io)
 
-TransIP offers a container registry. Set it up:
+This application uses GitHub Container Registry for Docker images:
 
-1. Go to TransIP control panel
-2. Navigate to "Container Registry"
-3. Create a new registry
-4. Note the registry URL (e.g., `registry.transip.nl/your-username`)
+1. Images are automatically built and pushed via GitHub Actions
+2. Registry URL: `ghcr.io/ganzevoort/bynderlottery`
+3. No manual registry setup required
 
-### 4.2 Configure Docker Login
+### 4.2 Verify Image Availability
 
 ```bash
-# Login to TransIP registry
-docker login registry.transip.nl
+# Check if images are available
+docker pull ghcr.io/ganzevoort/bynderlottery/backend:latest
+docker pull ghcr.io/ganzevoort/bynderlottery/frontend:latest
 ```
 
-## Step 5: Build and Push Docker Images
+## Step 5: GitHub Actions Configuration
 
-### 5.1 Update Image References
+### 5.1 Verify GitHub Actions Setup
 
-Edit the following files to use your TransIP registry:
+The application uses GitHub Actions for automated builds and deployments:
 
 - [`k8s/deployments.yaml`](../k8s/deployments.yaml)
 - [`helm-chart/values.yaml`](../helm-chart/values.yaml)

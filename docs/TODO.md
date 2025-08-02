@@ -5,11 +5,6 @@
 
 # backend
 
-- reduce container size by:
-  - use alpine (26M)
-  - install ipdb only in dev (35M)
-  - don't include postgresql-client (?)
-
 ## accounts
 
 - captchas

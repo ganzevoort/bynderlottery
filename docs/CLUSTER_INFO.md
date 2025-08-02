@@ -4,7 +4,7 @@
 
 - **Cluster ID**: `k8g67`
 - **Domain**: `bynderlottery.online`
-- **Registry**: `registry.transip.nl/your-username` (update with your actual registry)
+- **Registry**: `ghcr.io/ganzevoort/bynderlottery`
 
 ## Quick Commands
 

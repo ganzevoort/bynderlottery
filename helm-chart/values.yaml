@@ -101,10 +101,10 @@ config:
   DATABASE_HOST: "postgres"
   DATABASE_NAME: "myproject"
   DATABASE_USER: "janedoe"
-  EMAIL_HOST: "mail.candidmind.nl"
+  EMAIL_HOST: "vps.transip.email"
   EMAIL_PORT: "587"
   EMAIL_USE_TLS: "True"
-  EMAIL_HOST_USER: "jobganzevoort@bynderlottery.online"
+  EMAIL_HOST_USER: "candidmind@vps.transip.email"
   SITENAME: "bynderlottery.online"
 
   # Redis configuration

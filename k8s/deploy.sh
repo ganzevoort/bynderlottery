@@ -88,14 +88,14 @@ build_images() {
     print_status "Building Docker images..."
 
     # Build backend image
-    docker build -t your-registry/lottery-backend:latest backend/
+    docker build --tag=ghcr.io/ganzevoort/bynderlottery/backend:latest --target=production backend/
 
     # Build frontend image
-    docker build -t your-registry/lottery-frontend:latest frontend/
+    docker build --tag=ghcr.io/ganzevoort/bynderlottery/frontend:latest --target=production frontend/
 
     print_status "Pushing Docker images..."
-    docker push your-registry/lottery-backend:latest
-    docker push your-registry/lottery-frontend:latest
+    docker push ghcr.io/ganzevoort/bynderlottery/backend:latest
+    docker push ghcr.io/ganzevoort/bynderlottery/frontend:latest
 }
 
 # Function to deploy application

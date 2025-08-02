@@ -15,20 +15,23 @@ All Kubernetes configuration files have been updated with your specific settings
 
 - **Database Name**: `myproject`
 - **Database User**: `janedoe`
-- **Database Password**: `rxgcrsabhfxtuiuk` (base64 encoded in secrets)
+- **Database Password**: (base64 encoded in secrets)
 
 ### **Email Configuration**
 
-- **SMTP Host**: `mail.candidmind.nl`
+- **SMTP Host**: `vps.transip.email`
 - **SMTP Port**: `587`
-- **SMTP User**: `jobganzevoort@bynderlottery.online`
-- **SMTP Password**: `eznqklgvsqcythnf` (base64 encoded in secrets)
+- **SMTP User**: `candidmind@vps.transip.email`
+- **SMTP Password**: (base64 encoded in secrets)
 - **TLS**: Enabled
 
 ### **Security**
 
-- **Django Secret Key**: `zgspvncphrkoeubvpxpduyqceapfznzcaarfhpbqpggrqajbkhlfeymtobfhiuan`
-- **Admin Password**: `avqhpolfkhkfjkdp` (base64 encoded in secrets)
+- **Django Secret Key**: (base64 encoded in secrets)
+- **Admin Password**: (base64 encoded in secrets)
+
+Note: on first start, an admin user is created if no superuser exists yet.
+After first deployment, it's advised to login and change the admin password.
 
 ### **Environment**
 
@@ -60,21 +63,15 @@ kubectl get nodes
 
 ### 3. Set Up Container Registry
 
-1. Create a container registry in TransIP control panel
-2. Note your registry URL (e.g., `registry.transip.nl/your-username`)
-3. Login to registry:
-   ```bash
-   docker login registry.transip.nl
-   ```
+The application uses GitHub Container Registry (ghcr.io) for Docker images:
 
-### 4. Update Registry References
+1. Images are automatically built and pushed to `ghcr.io/ganzevoort/bynderlottery`
+2. No manual registry setup required - GitHub Actions handles this
+3. Images are available at:
+   - `ghcr.io/ganzevoort/bynderlottery/backend:latest`
+   - `ghcr.io/ganzevoort/bynderlottery/frontend:latest`
 
-Before deploying, update these files with your actual registry URL:
-
-- [`k8s/deployments.yaml`](../k8s/deployments.yaml) - Replace `your-registry` with your registry URL
-- [`helm-chart/values.yaml`](../helm-chart/values.yaml) - Replace `your-registry` with your registry URL
-
-### 5. Deploy Application
+### 4. Deploy Application
 
 **Option A: GitHub Actions Deployment (Recommended)**
 
@@ -93,7 +90,7 @@ git push origin main
 kubectl get pods -n lottery
 ```
 
-### 6. Configure DNS
+### 5. Configure DNS
 
 1. Get the LoadBalancer IP:
 
@@ -106,7 +103,7 @@ kubectl get pods -n lottery
    - **Value**: LoadBalancer IP from step 1
    - **TTL**: 300 seconds
 
-### 7. Verify Deployment
+### 6. Verify Deployment
 
 ```bash
 # Check all components
@@ -146,14 +143,13 @@ kubectl logs -f deployment/lottery-backend -n lottery
 
 Before deployment, you need to:
 
-1. **Update Registry URL**: Replace `your-registry` with your actual TransIP registry URL in:
+1. **Verify Email Settings**: Ensure TransIP VPS email service (`vps.transip.email`) is accessible and credentials are correct
 
-   - [`k8s/deployments.yaml`](../k8s/deployments.yaml)
-   - [`helm-chart/values.yaml`](../helm-chart/values.yaml)
+2. **Test Database Connection**: Verify PostgreSQL can connect with the provided credentials
 
-2. **Verify Email Settings**: Ensure `mail.candidmind.nl` is accessible and credentials are correct
-
-3. **Test Database Connection**: Verify PostgreSQL can connect with the provided credentials
+3. **GitHub Actions**: Ensure GitHub Actions are properly configured with:
+   - `GHCR_ACCESS_TOKEN` secret for container registry access
+   - Proper permissions for the repository
 
 ## 🎯 Expected Result
 
@@ -172,7 +168,7 @@ After deployment, your application will be available at:
 
    ```bash
    # Check if images exist
-   docker pull registry.transip.nl/your-username/lottery-backend:latest
+   docker pull ghcr.io/ganzevoort/bynderlottery/backend:latest
    ```
 
 2. **Database Connection**

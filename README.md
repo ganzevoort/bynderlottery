@@ -103,7 +103,7 @@ lottery/
 │       └── setup-docker/      # Reusable Docker setup
 │
 ├── compose.yaml               # Development environment
-├── compose.test.yaml          # Test environment
+├── compose.test.yaml          # Integration tests & demo environment
 └── README.md                 # This file
 ```
 

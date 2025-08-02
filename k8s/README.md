@@ -20,7 +20,7 @@ The application consists of:
 2. **kubectl**: Configured to connect to your cluster
 3. **Helm**: Version 3.x installed
 4. **Docker**: For building images
-5. **Container Registry**: For storing Docker images (TransIP offers one)
+5. **Container Registry**: GitHub Container Registry (ghcr.io) is used for Docker images
 
 ## Setup Instructions
 
@@ -72,16 +72,17 @@ helm install redis bitnami/redis \
   --set auth.enabled=false
 ```
 
-### 4. Build and Push Docker Images
+### 4. Container Registry
+
+The application uses GitHub Container Registry (ghcr.io) for Docker images:
 
 ```bash
-# Build images
-docker build -t your-registry/lottery-frontend:latest frontend/
-docker build -t your-registry/lottery-backend:latest backend/
+# Images are automatically built and pushed via GitHub Actions
+# Registry: ghcr.io/ganzevoort/bynderlottery
 
-# Push to registry
-docker push your-registry/lottery-frontend:latest
-docker push your-registry/lottery-backend:latest
+# To manually verify images are available:
+docker pull ghcr.io/ganzevoort/bynderlottery/frontend:latest
+docker pull ghcr.io/ganzevoort/bynderlottery/backend:latest
 ```
 
 ### 5. Deploy Application
@@ -218,7 +219,7 @@ kubectl port-forward svc/lottery-backend 8000:8000 -n lottery
 
 ```bash
 # Update application
-kubectl set image deployment/lottery-backend lottery-backend=your-registry/lottery-backend:new-version -n lottery
+kubectl set image deployment/lottery-backend lottery-backend=ghcr.io/ganzevoort/bynderlottery/backend:new-version -n lottery
 
 # Rollback if needed
 kubectl rollout undo deployment/lottery-backend -n lottery

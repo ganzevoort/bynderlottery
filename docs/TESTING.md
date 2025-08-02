@@ -26,6 +26,20 @@ The script automatically runs:
 2. **Backend Tests** (unit tests + formatting checks)
 3. **E2E Tests** (Cypress integration tests)
 
+### Test Environment
+
+The integration tests use a dedicated test environment defined in [`compose.test.yaml`](../compose.test.yaml):
+
+- **Purpose**: Integration testing and demo creation
+- **Infrastructure**: Uses production-optimized images from container registry
+- **Services**: nginx proxy, frontend, backend, and Cypress
+- **Port**: Runs on port 8081 to avoid conflicts with development environment
+
+#### Dual Purpose
+
+1. **Integration Testing**: Primary purpose for running comprehensive E2E tests
+2. **Demo Creation**: Special case for generating demo videos for product owner review
+
 ### Test Structure
 
 The Cypress tests are organized in logical directories:
@@ -44,206 +58,72 @@ The Cypress tests are organized in logical directories:
 
 - **[99-demo.cy.ts](../cypress/e2e/demo/99-demo.cy.ts)** - Complete demo journey for product owner
 
-### Test Scenarios
+### Example: Signup Journey Test
 
-#### 1. API Tests ([e2e/tests/01-api-tests.cy.ts](../cypress/e2e/tests/01-api-tests.cy.ts))
-
-Tests all backend API endpoints:
+Here's an example of how the tests are structured:
 
 ```typescript
-describe("API Endpoints", () => {
-  it("Should handle user registration via API", () => {
-    const userData = {
-      email: `api-test-${Date.now()}@example.com`,
-      password1: "TestPassword123!",
-      password2: "TestPassword123!",
-      name: "API Test User",
-    };
+describe('Signup Journey', () => {
+    const testUser = {
+        name: 'Signup Test User',
+        email: 'signup-test@example.com',
+        password: 'password123'
+    }
 
-    cy.request("POST", "/api/accounts/signup/", userData).then((response) => {
-      expect(response.status).to.eq(201);
-      expect(response.body).to.have.property("message");
-      expect(response.body).to.have.property("user_id");
-    });
-  });
-});
-```
+    beforeEach(() => {
+        cy.clearDatabase()
+        cy.seedTestData()
+        cy.waitForTestEnv()
+    })
 
-#### 2. Token Tests ([e2e/tests/02-token-tests.cy.ts](../cypress/e2e/tests/02-token-tests.cy.ts))
+    it('Complete signup journey: signup, verify email, signin', () => {
+        // Step 1: Visit home page
+        cy.visit('/')
+        cy.contains('Welcome to the Lottery System').should('be.visible')
+        cy.contains('Get Started').should('be.visible')
 
-Tests email verification and password reset token functionality:
+        // Step 2: Sign up
+        cy.visit('/auth/signup')
+        cy.get('input[name='name']').type(testUser.name)
+        cy.get('input[name='email']').type(testUser.email)
+        cy.get('input[name='password1']').type(testUser.password)
+        cy.get('input[name='password2']').type(testUser.password)
+        cy.get('button[type='submit']').click()
 
-```typescript
-describe("Token Testing", () => {
-  it("Should get email verification and password reset tokens for testing", () => {
-    // Test token retrieval for testing email-dependent flows
-    cy.getTestTokens("testuser1@example.com").then((tokens) => {
-      expect(tokens.email_verification_token).to.be.a("string");
-      expect(tokens.password_reset_token).to.be.a("string");
-    });
-  });
-});
-```
+        // Should show success message
+        cy.contains('Account created successfully').should('be.visible')
+        cy.contains('Please check your email to verify your account').should('be.visible')
 
-#### 3. Signup Journey ([e2e/tests/03-signup-journey.cy.ts](../cypress/e2e/tests/03-signup-journey.cy.ts))
+        // Step 3: Get tokens and verify email via UI
+        // Note: getTestTokens uses a test-only API endpoint to retrieve email verification
+        // and password reset tokens, since accessing actual emails in tests is difficult
+        cy.getTestTokens(testUser.email).then((response) => {
+            expect(response.status).to.eq(200)
+            const emailToken = response.body.email_verification_token
 
-Tests the complete signup and email verification flow:
+            // Visit email verification page with the token
+            cy.visit(`/auth/verify-email/${emailToken}`)
+            cy.contains('Email verified successfully').should('be.visible')
+        })
 
-```typescript
-describe("Signup Journey", () => {
-  it("Complete signup journey: signup, verify email, signin", () => {
-    // 1. Sign up new user
-    cy.visit("/auth/signup");
-    cy.get('input[id="name"]').type("Test User");
-    cy.get('input[id="email"]').type("newuser@example.com");
-    cy.get('input[id="password1"]').type("password123");
-    cy.get('input[id="password2"]').type("password123");
-    cy.get('button[type="submit"]').click();
+        // Step 4: Sign in (after email verification)
+        cy.visit('/auth/signin')
+        cy.get('input[id='email']').type(testUser.email)
+        cy.get('input[id='password']').type(testUser.password)
+        cy.get('button[type='submit']').click()
 
-    // 2. Verify email
-    cy.getTestTokens("newuser@example.com").then((tokens) => {
-      cy.visit(`/auth/verify-email/${tokens.email_verification_token}`);
-    });
+        // Wait for signin to complete and check for success message
+        cy.wait(3000)
+        cy.get('div').contains('Successfully signed in!').should('be.visible')
 
-    // 3. Sign in
-    cy.visit("/auth/signin");
-    cy.get('input[id="email"]').type("newuser@example.com");
-    cy.get('input[id="password"]').type("password123");
-    cy.get('button[type="submit"]').click();
-  });
-});
-```
+        // Should redirect to home page after successful signin
+        cy.url().should('eq', 'http://web/')
 
-#### 4. Password Reset Journey ([e2e/tests/04-password-reset-journey.cy.ts](../cypress/e2e/tests/04-password-reset-journey.cy.ts))
-
-Tests the password reset workflow:
-
-```typescript
-describe("Password Reset Journey", () => {
-  it("Complete password reset journey: forgot password, get tokens, change password, signin", () => {
-    // 1. Sign in with existing user
-    cy.visit("/auth/signin");
-    cy.get('input[id="email"]').type("testuser1@example.com");
-    cy.get('input[id="password"]').type("testpass123");
-    cy.get('button[type="submit"]').click();
-
-    // 2. Request password reset
-    cy.request("POST", "/api/accounts/forgot-password/", {
-      email: "testuser1@example.com",
-    });
-
-    // 3. Get reset token and change password
-    cy.getTestTokens("testuser1@example.com").then((tokens) => {
-      cy.visit(`/auth/reset-password/${tokens.password_reset_token}`);
-      cy.get('input[id="password1"]').type("newpassword123");
-      cy.get('input[id="password2"]').type("newpassword123");
-      cy.get('button[type="submit"]').click();
-    });
-
-    // 4. Sign in with new password
-    cy.visit("/auth/signin");
-    cy.get('input[id="email"]').type("testuser1@example.com");
-    cy.get('input[id="password"]').type("newpassword123");
-    cy.get('button[type="submit"]').click();
-  });
-});
-```
-
-#### 5. Profile Journey ([e2e/tests/05-profile-journey.cy.ts](../cypress/e2e/tests/05-profile-journey.cy.ts))
-
-Tests profile management and updates:
-
-```typescript
-describe("Profile Management Journey", () => {
-  it("Complete profile journey: signin, update profile, change bank account", () => {
-    // 1. Sign in with existing user
-    cy.visit("/auth/signin");
-    cy.get('input[id="email"]').type("testuser1@example.com");
-    cy.get('input[id="password"]').type("testpass123");
-    cy.get('button[type="submit"]').click();
-
-    // 2. Update profile
-    cy.visit("/profile");
-    cy.get('input[id="bankaccount"]').clear().type("NL91ABNA0417164300");
-    cy.get('button[type="submit"]').click();
-
-    // 3. Sign out
-    cy.get('[data-testid="user-menu"]').click();
-    cy.get('[data-testid="sign-out"]').click();
-    cy.url().should("include", "/auth/signin");
-  });
-});
-```
-
-#### 6. Ballot Journey ([e2e/tests/06-ballot-journey.cy.ts](../cypress/e2e/tests/06-ballot-journey.cy.ts))
-
-Tests ballot purchase and assignment:
-
-```typescript
-describe("Ballot Journey", () => {
-  it("Complete ballot journey: signin, buy ballots", () => {
-    // 1. Sign in with existing user
-    cy.visit("/auth/signin");
-    cy.get('input[id="email"]').type("testuser1@example.com");
-    cy.get('input[id="password"]').type("testpass123");
-    cy.get('button[type="submit"]').click();
-
-    // 2. Buy ballots
-    cy.visit("/my-ballots");
-    cy.contains("Purchase New Ballots").click();
-    cy.get('input[name="quantity"]').type("3");
-    cy.get('input[name="card_number"]').type("1234567890123456");
-    cy.get('input[name="expiry_month"]').type("12");
-    cy.get('input[name="expiry_year"]').type("2025");
-    cy.get('input[name="cvv"]').type("123");
-    cy.get('button[type="submit"]').click();
-
-    // 3. Sign out
-    cy.get('[data-testid="user-menu"]').click();
-    cy.get('[data-testid="sign-out"]').click();
-    cy.url().should("include", "/auth/signin");
-  });
-});
-```
-
-#### 7. Closed Draws Journey ([e2e/tests/07-closed-draws-journey.cy.ts](../cypress/e2e/tests/07-closed-draws-journey.cy.ts))
-
-Tests viewing closed draws and results:
-
-```typescript
-describe("Closed Draws Journey", () => {
-  it("Complete closed draws journey: signin, view closed draws", () => {
-    // 1. Sign in with existing user
-    cy.visit("/auth/signin");
-    cy.get('input[id="email"]').type("testuser1@example.com");
-    cy.get('input[id="password"]').type("testpass123");
-    cy.get('button[type="submit"]').click();
-
-    // 2. View closed draws
-    cy.visit("/draws/closed");
-    cy.get('[data-testid="closed-draw"]').should("have.length.at.least", 1);
-
-    // 3. Sign out
-    cy.get('[data-testid="user-menu"]').click();
-    cy.get('[data-testid="sign-out"]').click();
-    cy.url().should("include", "/auth/signin");
-  });
-});
-```
-
-#### 8. User Journey Overview (08-user-journey.cy.ts)
-
-Overview test that verifies all user journeys are working:
-
-```typescript
-describe("Lottery User Journeys", () => {
-  it("Should have all user journeys working", () => {
-    // This test verifies that all user journeys are properly configured
-    // and the test environment is working correctly
-    cy.visit("/");
-    cy.get("body").should("contain", "Lottery System");
-  });
-});
+        // Verify user is authenticated by checking if we can access protected pages
+        cy.visit('/my-ballots')
+        cy.url().should('include', '/my-ballots')
+    })
+})
 ```
 
 ### Custom Commands
@@ -252,19 +132,19 @@ The test suite includes custom Cypress commands for common operations:
 
 ```typescript
 // User management
-cy.signUp(email, password, name);
-cy.signIn(email, password);
-cy.signOut();
+cy.signUp(email, password, name)
+cy.signIn(email, password)
+cy.signOut()
 
 // Ballot operations
-cy.buyBallots(quantity);
-cy.assignBallot(drawId);
+cy.buyBallots(quantity)
+cy.assignBallot(drawId)
 
 // Test utilities
-cy.clearDatabase();
-cy.seedTestData();
-cy.waitForApi();
-cy.isAuthenticated();
+cy.clearDatabase()
+cy.seedTestData()
+cy.waitForApi()
+cy.isAuthenticated()
 ```
 
 ## 🔧 Test Configuration
